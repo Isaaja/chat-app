@@ -1,18 +1,5 @@
 import { http } from "@/lib/http";
-import type { Result, Comment } from "@/features/chat/types";
-
-type Participant = {
-  id: string;
-  name: string;
-  role: number;
-};
-
-type Room = {
-  name: string;
-  id: number | string;
-  image_url?: string;
-  participant: Participant[];
-};
+import type { Result, Comment, Room } from "@/features/chat/types";
 
 type ApiComment = {
   id: number | string;
@@ -29,11 +16,6 @@ type ApiResponse = {
   room?: Room;
   comments?: ApiComment[];
 };
-
-function pickMeEmail(room: Room): string | undefined {
-  const agent = room.participant?.find((p) => p.role === 1);
-  return agent?.id ?? room.participant?.[0]?.id;
-}
 
 function generateTimestamp(baseISO: string, offsetMinutes: number): string {
   const base = new Date(baseISO);
@@ -64,8 +46,6 @@ export async function fetchChatData(): Promise<{
   const messages: Comment[] = [];
 
   results.forEach(({ room, comments }, roomIndex) => {
-    const meEmail = pickMeEmail(room);
-
     const chat: Result = {
       room,
       comments: comments.map((c) => ({

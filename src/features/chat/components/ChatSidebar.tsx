@@ -48,7 +48,7 @@ export default function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <ul className="menu px-1 overflow-y-auto flex-1">
+      <ul className="menu px-1 overflow-y-auto flex-1 w-full">
         {chats.map((chat) => {
           const chatId = String(chat.room.id);
           const isActive = chatId === activeChatId;

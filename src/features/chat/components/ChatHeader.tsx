@@ -1,11 +1,21 @@
 import { Result } from "../types";
 import Image from "next/image";
+
 type ChatHeaderProps = {
   chat?: Result;
   onBack?: () => void;
 };
 
 export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
+  const participants =
+    chat?.room.participant.map((p) => ({
+      ...p,
+      displayName: p.role === 1 ? "You" : p.name,
+    })) ?? [];
+
+  const me = participants.find((p) => p.role === 1);
+  const otherParticipants = participants.filter((p) => p.id !== me?.id);
+
   return (
     <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4">
       {onBack ? (
@@ -17,8 +27,9 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
           ←
         </button>
       ) : null}
+
       <div className="avatar">
-        <div className="bg-neutral text-neutral-content w-10 rounded-full flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral text-neutral-content flex items-center justify-center">
           {chat?.room?.image_url ? (
             <Image
               src={chat.room.image_url}
@@ -28,15 +39,19 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
               className="rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-300 text-white font-bold">
+            <span className="font-bold text-white">
               {chat?.room?.name?.charAt(0).toUpperCase() ?? "?"}
-            </div>
+            </span>
           )}
         </div>
       </div>
+
       <div className="flex flex-col">
         <span className="font-medium">{chat?.room.name ?? "Pilih chat"}</span>
-        <span className="text-xs opacity-70">{chat ? "online" : ""}</span>
+        <span className="text-xs opacity-70">
+          {otherParticipants.map((p) => p.displayName).join(", ")}
+          {me?.displayName ? `, ${me?.displayName}` : ""}
+        </span>
       </div>
     </div>
   );
