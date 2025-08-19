@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Chat, Message } from "@/features/chat/types";
+import axios from "axios";
 
 const ENDPOINT = "https://bit.ly/chat_room_endpoint";
 
@@ -45,14 +46,7 @@ function generateTimestamp(baseISO: string, offsetMinutes: number): string {
 
 export async function GET() {
   try {
-    const res = await fetch(ENDPOINT, { cache: "no-store" });
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `Failed to fetch upstream: ${res.status}` },
-        { status: 502 }
-      );
-    }
-    const data = (await res.json()) as ApiResponse;
+    const { data } = await axios.get<ApiResponse>(ENDPOINT, { timeout: 15000 });
 
     const payload =
       data.results?.[0] ??

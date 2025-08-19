@@ -1,6 +1,7 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { Chat } from "../types";
-
+import Image from "next/image";
 type ChatSidebarProps = {
   chats: Chat[];
   activeChatId?: string;
@@ -12,8 +13,51 @@ export default function ChatSidebar({
   activeChatId,
   onSelectChat,
 }: ChatSidebarProps) {
+  const [sidebarWidth, setSidebarWidth] = useState<number>(384);
+  const dragStartXRef = useRef<number | null>(null);
+  const startWidthRef = useRef<number>(sidebarWidth);
+
+  useEffect(() => {
+    const persisted =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("chat.sidebarWidth")
+        : null;
+    if (persisted) {
+      const n = Number(persisted);
+      if (!Number.isNaN(n)) setSidebarWidth(n);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("chat.sidebarWidth", String(sidebarWidth));
+    }
+  }, [sidebarWidth]);
+
+  function onDragStart(e: React.MouseEvent) {
+    dragStartXRef.current = e.clientX;
+    startWidthRef.current = sidebarWidth;
+    window.addEventListener("mousemove", onDragging);
+    window.addEventListener("mouseup", onDragEnd);
+  }
+
+  function onDragging(e: MouseEvent) {
+    if (dragStartXRef.current == null) return;
+    const delta = e.clientX - dragStartXRef.current;
+    const next = Math.min(560, Math.max(260, startWidthRef.current + delta));
+    setSidebarWidth(next);
+  }
+
+  function onDragEnd() {
+    dragStartXRef.current = null;
+    window.removeEventListener("mousemove", onDragging);
+    window.removeEventListener("mouseup", onDragEnd);
+  }
   return (
-    <div className="bg-base-200 border-r border-base-300 w-full lg:w-96 max-w-full flex flex-col">
+    <div
+      className="bg-base-200 border-r border-black max-w-full flex flex-col relative"
+      style={{ width: sidebarWidth }}
+    >
       <div className="p-4 border-b border-base-300 flex items-center gap-2">
         <span className="font-bold text-xl">Chats</span>
         <div className="ml-auto" />
@@ -52,7 +96,12 @@ export default function ChatSidebar({
               >
                 <div className="avatar avatar-offline">
                   <div className="w-10 rounded-full">
-                    <img src={chat.avatarUrl} />
+                    <Image
+                      src={chat.avatarUrl ?? ""}
+                      alt={chat.name}
+                      width={40}
+                      height={40}
+                    />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 text-left ">
@@ -67,10 +116,12 @@ export default function ChatSidebar({
                       })}
                     </span>
                   </div>
-                  <div className="text-sm opacity-70 truncate flex justify-between">
-                    {chat.lastMessage}
+                  <div className="text-sm opacity-70 flex items-center gap-2">
+                    <span className="truncate min-w-0 flex-1 line-clamp-1">
+                      {chat.lastMessage}
+                    </span>
                     {chat.unreadCount ? (
-                      <div className="badge badge-primary badge-sm">
+                      <div className="badge badge-primary badge-sm flex-shrink-0">
                         {chat.unreadCount}
                       </div>
                     ) : null}
@@ -81,6 +132,15 @@ export default function ChatSidebar({
           );
         })}
       </ul>
+      {/* Drag handle */}
+      <div
+        onMouseDown={onDragStart}
+        className="absolute top-0 right-0 h-full w-1 cursor-col-resize hover:w-2 hover:bg-base-300 transition-all"
+        aria-label="Resize sidebar"
+        title="Resize"
+        role="separator"
+        aria-orientation="vertical"
+      />
     </div>
   );
 }

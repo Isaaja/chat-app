@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Smile, Plus, SendHorizonal } from "lucide-react";
 
 type ChatInputProps = {
   onSend: (text: string) => void;
@@ -19,28 +20,39 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-base-300 p-3 flex items-end gap-2"
+      className="border-t border-black p-3 flex items-end gap-2 bg-base-200 text-white"
     >
-      <button type="button" className="btn btn-ghost btn-sm">
-        🙂
+      <button className="btn btn-ghost btn-sm justify-center items-center h-full hidden md:block">
+        <Smile className="w-5 h-5" />
       </button>
-      <div className="flex-1">
-        <textarea
-          className="textarea textarea-bordered w-full resize-none"
-          rows={1}
-          placeholder="Type a message"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e as unknown as React.FormEvent);
-            }
-          }}
-        />
-      </div>
-      <button type="submit" className="btn btn-primary">
-        Send
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm justify-center items-center h-full"
+        aria-label="Add attachment"
+      >
+        <Plus className="w-5 h-5" />
+      </button>
+      <input
+        type="text"
+        placeholder="Type a message"
+        className="input input-bordered flex-1 rounded-full bg-base-100"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleSubmit(e as unknown as React.FormEvent);
+          }
+        }}
+        aria-label="Message input"
+      />
+      <button
+        type="submit"
+        className="btn btn-primary"
+        disabled={!text.trim()}
+        aria-label="Send message"
+      >
+        <SendHorizonal />
       </button>
     </form>
   );
