@@ -20,7 +20,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-black p-3 flex items-end gap-2 bg-base-200 text-white"
+      className="border-t border-black p-3 flex items-end gap-2 bg-base-300 text-white"
     >
       <button className="btn btn-ghost btn-sm justify-center items-center h-full hidden md:block">
         <Smile className="w-5 h-5" />

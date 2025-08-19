@@ -44,7 +44,7 @@ export default function Page() {
   useEffect(() => {
     const update = () => {
       const desktop =
-        typeof window !== "undefined" ? window.innerWidth >= 1024 : false;
+        typeof window !== "undefined" ? window.innerWidth >= 768 : false;
       setIsDesktop(desktop);
       if (desktop) setShowSidebarMobile(true);
     };

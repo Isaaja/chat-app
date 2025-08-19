@@ -7,10 +7,10 @@ type ChatHeaderProps = {
 
 export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
   return (
-    <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4">
+    <div className="h-16 border-b border-black bg-base-300 flex items-center gap-3 px-4">
       {onBack ? (
         <button
-          className="btn btn-ghost btn-sm lg:hidden"
+          className="btn btn-active btn-sm lg:hidden"
           onClick={onBack}
           aria-label="Back"
         >
@@ -30,10 +30,6 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
       <div className="flex flex-col">
         <span className="font-medium">{chat?.name ?? "Pilih chat"}</span>
         <span className="text-xs opacity-70">{chat ? "online" : ""}</span>
-      </div>
-      <div className="ml-auto flex gap-2">
-        <button className="btn btn-ghost btn-sm">Search</button>
-        <button className="btn btn-ghost btn-sm">More</button>
       </div>
     </div>
   );

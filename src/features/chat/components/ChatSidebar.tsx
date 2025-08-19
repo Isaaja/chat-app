@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 import { Chat } from "../types";
 import Image from "next/image";
+import { CircleFadingPlus } from "lucide-react";
+
 type ChatSidebarProps = {
   chats: Chat[];
   activeChatId?: string;
@@ -13,55 +14,17 @@ export default function ChatSidebar({
   activeChatId,
   onSelectChat,
 }: ChatSidebarProps) {
-  const [sidebarWidth, setSidebarWidth] = useState<number>(384);
-  const dragStartXRef = useRef<number | null>(null);
-  const startWidthRef = useRef<number>(sidebarWidth);
-
-  useEffect(() => {
-    const persisted =
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("chat.sidebarWidth")
-        : null;
-    if (persisted) {
-      const n = Number(persisted);
-      if (!Number.isNaN(n)) setSidebarWidth(n);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("chat.sidebarWidth", String(sidebarWidth));
-    }
-  }, [sidebarWidth]);
-
-  function onDragStart(e: React.MouseEvent) {
-    dragStartXRef.current = e.clientX;
-    startWidthRef.current = sidebarWidth;
-    window.addEventListener("mousemove", onDragging);
-    window.addEventListener("mouseup", onDragEnd);
-  }
-
-  function onDragging(e: MouseEvent) {
-    if (dragStartXRef.current == null) return;
-    const delta = e.clientX - dragStartXRef.current;
-    const next = Math.min(560, Math.max(260, startWidthRef.current + delta));
-    setSidebarWidth(next);
-  }
-
-  function onDragEnd() {
-    dragStartXRef.current = null;
-    window.removeEventListener("mousemove", onDragging);
-    window.removeEventListener("mouseup", onDragEnd);
-  }
   return (
-    <div
-      className="bg-base-200 border-r border-black max-w-full flex flex-col relative"
-      style={{ width: sidebarWidth }}
-    >
-      <div className="p-4 border-b border-base-300 flex items-center gap-2">
+    <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="p-4 border-b border-base-300 flex items-center gap-2 justify-between">
         <span className="font-bold text-xl">Chats</span>
-        <div className="ml-auto" />
+        <button className="btn btn-ghost rounded-xl p-2">
+          <CircleFadingPlus className="w-6 h-6" />
+        </button>
       </div>
+
+      {/* Search */}
       <div className="p-3">
         <label className="input items-center w-full">
           <svg
@@ -83,41 +46,62 @@ export default function ChatSidebar({
           <input type="search" placeholder="Search" className="grow" />
         </label>
       </div>
-      <ul className="menu px-1 overflow-y-auto w-full">
+
+      {/* Chat List */}
+      <ul className="menu px-1 overflow-y-auto flex-1 md:w-full">
         {chats.map((chat) => {
           const isActive = chat.id === activeChatId;
           return (
-            <li key={chat.id}>
+            <li key={chat.id} className="w-96 md:w-full">
               <button
-                className={`flex gap-3 items-center py-3 px-3 rounded-lg ${
+                className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full ${
                   isActive ? "bg-base-300" : "hover:bg-base-300/60"
                 }`}
                 onClick={() => onSelectChat(chat.id)}
               >
-                <div className="avatar avatar-offline">
-                  <div className="w-10 rounded-full">
-                    <Image
-                      src={chat.avatarUrl ?? ""}
-                      alt={chat.name}
-                      width={40}
-                      height={40}
-                    />
+                {/* Avatar */}
+                <div className="avatar avatar-offline flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    {chat.avatarUrl ? (
+                      <Image
+                        src={chat.avatarUrl}
+                        alt={chat.name}
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium">
+                          {(
+                            chat.avatarLetter ??
+                            chat.name?.charAt(0) ??
+                            "?"
+                          ).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex-1 min-w-0 text-left ">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium truncate bg-red">
+
+                {/* Chat Info */}
+                <div className="flex-1 min-w-0">
+                  {/* Name + Time */}
+                  <div className="flex items-center gap-2 w-full">
+                    <span className="font-medium truncate flex-1">
                       {chat.name}
                     </span>
-                    <span className="ml-auto text-xs opacity-60 whitespace-nowrap">
+                    <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
                       {new Date(chat.lastTimestamp).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </span>
                   </div>
-                  <div className="text-sm opacity-70 flex items-center gap-2">
-                    <span className="truncate min-w-0 flex-1 line-clamp-1">
+
+                  {/* Last Message + Unread */}
+                  <div className="text-sm opacity-70 flex items-center gap-2 w-full">
+                    <span className="truncate flex-1 min-w-0">
                       {chat.lastMessage}
                     </span>
                     {chat.unreadCount ? (
@@ -132,15 +116,6 @@ export default function ChatSidebar({
           );
         })}
       </ul>
-      {/* Drag handle */}
-      <div
-        onMouseDown={onDragStart}
-        className="absolute top-0 right-0 h-full w-1 cursor-col-resize hover:w-2 hover:bg-base-300 transition-all"
-        aria-label="Resize sidebar"
-        title="Resize"
-        role="separator"
-        aria-orientation="vertical"
-      />
     </div>
   );
 }
