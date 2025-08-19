@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Room {
+  id          Int             @id @default(autoincrement())
+  name        String
+  imageUrl    String?
+  participants RoomParticipant[]
+  comments    Comment[]
+}
+
+model Participant {
+  id          String           @id // bisa pakai email atau UUID
+  name        String
+  role        Int              // 0 = admin, 1 = agent, 2 = customer
+  rooms       RoomParticipant[]
+  comments    Comment[]
+}
+
+model RoomParticipant {
+  roomId       Int
+  participantId String
+
+  room         Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participant  Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, participantId]) // composite primary key
+}
+
+model Comment {
+  id        Int    @id @default(autoincrement())
+  type      String
+  message   String
+  roomId    Int
+  senderId  String
+
+  room      Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender    Participant @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
