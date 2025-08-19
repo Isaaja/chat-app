@@ -50,16 +50,16 @@ export default function ChatSidebar({
                 }`}
                 onClick={() => onSelectChat(chat.id)}
               >
-                <div className="avatar">
-                  <div className="bg-neutral text-neutral-content w-10 rounded-full flex items-center justify-center">
-                    <span className="text-xl items-center justify-center">
-                      {chat.avatarLetter ?? chat.name.charAt(0).toUpperCase()}
-                    </span>
+                <div className="avatar avatar-offline">
+                  <div className="w-10 rounded-full">
+                    <img src={chat.avatarUrl} />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 text-left ">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">{chat.name}</span>
+                    <span className="font-medium truncate bg-red">
+                      {chat.name}
+                    </span>
                     <span className="ml-auto text-xs opacity-60 whitespace-nowrap">
                       {new Date(chat.lastTimestamp).toLocaleTimeString([], {
                         hour: "2-digit",
