@@ -1,7 +1,9 @@
 "use client";
 import { Result } from "../types";
 import Image from "next/image";
-import { CircleFadingPlus } from "lucide-react";
+import { SquarePen, UserRound, UsersRound } from "lucide-react";
+import NewChatMenu from "./NewChatMenu";
+import { useState } from "react";
 
 type ChatSidebarProps = {
   chats: Result[];
@@ -14,14 +16,22 @@ export default function ChatSidebar({
   activeChatId,
   onSelectChat,
 }: ChatSidebarProps) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col overflow-hidden">
+    <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-base-300 flex items-center gap-2 justify-between">
         <span className="font-bold text-xl">Chats</span>
-        <button className="btn btn-ghost rounded-xl p-2">
-          <CircleFadingPlus className="w-6 h-6" />
-        </button>
+        <details
+          className="dropdown dropdown-end md:dropdown-center"
+          open={isOpen}
+          onToggle={() => setIsOpen((prev) => !prev)}
+        >
+          <summary className="btn btn-ghost rounded-xl p-2">
+            <SquarePen className="w-6 h-6" />
+          </summary>
+          <NewChatMenu isOpen={isOpen} />
+        </details>
       </div>
 
       {/* Search */}
