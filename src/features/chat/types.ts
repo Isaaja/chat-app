@@ -1,20 +1,39 @@
-export type MessageAuthor = "me" | "them";
+// types/chat.ts
 
-export interface Chat {
+export interface Participant {
   id: string;
   name: string;
-  avatarLetter?: string;
-  avatarUrl?: string;
-  lastMessage: string;
-  lastTimestamp: string;
-  unreadCount?: number;
+  role: number;
 }
 
-export interface Message {
+export interface Room {
+  id: string | number;
+  name: string;
+  image_url?: string;
+  participant: Participant[];
+}
+
+export interface Sender {
   id: string;
-  chatId: string;
-  author: MessageAuthor;
-  text: string;
-  timestamp: string;
-  status?: "sent" | "delivered" | "read";
+  name: string;
+  avatar?: string;
+}
+
+export interface Comment {
+  id: string | number;
+  type: string;
+  message: string;
+  sender: Sender;
+  timestamp?: string; // kalau ada
+}
+
+export interface Result {
+  room: Room;
+  comments: Comment[];
+}
+
+export interface ApiResponse {
+  results?: Result[];
+  room?: Room;
+  comments?: Comment[];
 }

@@ -1,11 +1,11 @@
-import { Message } from "../types";
+import { Comment } from "../types";
 
 type MessageBubbleProps = {
-  message: Message;
+  comment: Comment;
 };
 
-export default function MessageBubble({ message }: MessageBubbleProps) {
-  const isMine = message.author === "me";
+export default function MessageBubble({ comment }: MessageBubbleProps) {
+  const isMine = comment.sender.name === "agent@mail.com";
   return (
     <div className={`w-full flex ${isMine ? "justify-end" : "justify-start"}`}>
       <div
@@ -13,9 +13,9 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           isMine ? "bg-primary text-primary-content" : "bg-base-200"
         }`}
       >
-        <div className="whitespace-pre-wrap break-words">{message.text}</div>
+        <div className="whitespace-pre-wrap break-words">{comment.message}</div>
         <div className={`text-[10px] opacity-70 mt-1 text-right`}>
-          {new Date(message.timestamp).toLocaleTimeString([], {
+          {new Date(comment.timestamp ?? "").toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}

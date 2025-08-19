@@ -7,13 +7,13 @@ import ChatInput from "@/features/chat/components/ChatInput";
 import ChatSidebarSkeleton from "@/features/chat/skeletons/ChatSidebarSkeleton";
 import ChatHeaderSkeleton from "@/features/chat/skeletons/ChatHeaderSkeleton";
 import ChatThreadSkeleton from "@/features/chat/skeletons/ChatThreadSkeleton";
-import type { Chat, Message } from "@/features/chat/types";
+import type { Result, Comment } from "@/features/chat/types";
 import { fetchChatData } from "@/services/chat";
 
 export default function Page() {
-  const [chats, setChats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<Result[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | undefined>();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -54,13 +54,14 @@ export default function Page() {
   }, []);
 
   const activeChat = useMemo(
-    () => chats.find((c) => c.id === activeChatId),
+    () => chats.find((c) => String(c.room.id) === activeChatId),
     [chats, activeChatId]
   );
-  const visibleMessages = useMemo(
-    () => messages.filter((m) => m.chatId === activeChatId),
-    [messages, activeChatId]
-  );
+
+  const visibleMessages = useMemo(() => {
+    if (!activeChat) return [];
+    return activeChat.comments;
+  }, [activeChat]);
 
   function handleSelectChat(chatId: string) {
     setActiveChatId(chatId);
@@ -68,16 +69,27 @@ export default function Page() {
   }
 
   function handleSend(text: string) {
-    if (!activeChatId) return;
-    const newMessage: Message = {
+    if (!activeChatId || !activeChat) return;
+    const newMessage: Comment = {
       id: crypto.randomUUID(),
-      chatId: activeChatId,
-      author: "me",
-      text,
+      type: "text",
+      message: text,
+      sender: {
+        id: "me",
+        name: "Me",
+        avatar: undefined,
+      },
       timestamp: new Date().toISOString(),
-      status: "sent",
     };
-    setMessages((prev) => [...prev, newMessage]);
+
+    // Update the active chat's comments
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        String(chat.room.id) === activeChatId
+          ? { ...chat, comments: [...chat.comments, newMessage] }
+          : chat
+      )
+    );
   }
 
   return (

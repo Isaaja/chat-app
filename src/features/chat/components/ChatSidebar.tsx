@@ -1,10 +1,10 @@
 "use client";
-import { Chat } from "../types";
+import { Result } from "../types";
 import Image from "next/image";
 import { CircleFadingPlus } from "lucide-react";
 
 type ChatSidebarProps = {
-  chats: Chat[];
+  chats: Result[];
   activeChatId?: string;
   onSelectChat: (chatId: string) => void;
 };
@@ -48,24 +48,27 @@ export default function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <ul className="menu px-1 overflow-y-auto flex-1 md:w-full">
+      <ul className="menu px-1 overflow-y-auto flex-1">
         {chats.map((chat) => {
-          const isActive = chat.id === activeChatId;
+          const chatId = String(chat.room.id);
+          const isActive = chatId === activeChatId;
+          const lastMessage = chat.comments[chat.comments.length - 1];
+
           return (
-            <li key={chat.id} className="w-96 md:w-full">
+            <li key={chatId} className="w-full">
               <button
                 className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full ${
                   isActive ? "bg-base-300" : "hover:bg-base-300/60"
                 }`}
-                onClick={() => onSelectChat(chat.id)}
+                onClick={() => onSelectChat(chatId)}
               >
                 {/* Avatar */}
                 <div className="avatar avatar-offline flex-shrink-0">
                   <div className="w-10 h-10 rounded-full overflow-hidden">
-                    {chat.avatarUrl ? (
+                    {chat.room.image_url ? (
                       <Image
-                        src={chat.avatarUrl}
-                        alt={chat.name}
+                        src={chat.room.image_url}
+                        alt={chat.room.name}
                         width={40}
                         height={40}
                         className="rounded-full object-cover"
@@ -73,11 +76,7 @@ export default function ChatSidebar({
                     ) : (
                       <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full flex items-center justify-center">
                         <span className="text-sm font-medium">
-                          {(
-                            chat.avatarLetter ??
-                            chat.name?.charAt(0) ??
-                            "?"
-                          ).toUpperCase()}
+                          {(chat.room.name?.charAt(0) ?? "?").toUpperCase()}
                         </span>
                       </div>
                     )}
@@ -89,26 +88,26 @@ export default function ChatSidebar({
                   {/* Name + Time */}
                   <div className="flex items-center gap-2 w-full">
                     <span className="font-medium truncate flex-1">
-                      {chat.name}
+                      {chat.room.name}
                     </span>
                     <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
-                      {new Date(chat.lastTimestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {lastMessage?.timestamp
+                        ? new Date(lastMessage.timestamp).toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )
+                        : ""}
                     </span>
                   </div>
 
                   {/* Last Message + Unread */}
                   <div className="text-sm opacity-70 flex items-center gap-2 w-full">
                     <span className="truncate flex-1 min-w-0">
-                      {chat.lastMessage}
+                      {lastMessage?.message ?? ""}
                     </span>
-                    {chat.unreadCount ? (
-                      <div className="badge badge-primary badge-sm flex-shrink-0">
-                        {chat.unreadCount}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </button>
