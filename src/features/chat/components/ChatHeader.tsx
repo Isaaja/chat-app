@@ -1,5 +1,6 @@
 import { Result } from "../types";
 import Image from "next/image";
+import { ContactDetailModal, useContactDetail } from "../../contact-detail";
 
 type ChatHeaderProps = {
   chat?: Result;
@@ -16,43 +17,66 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
   const me = participants.find((p) => p.role === 1);
   const otherParticipants = participants.filter((p) => p.id !== me?.id);
 
-  return (
-    <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4">
-      {onBack ? (
-        <button
-          className="btn btn-ghost btn-sm lg:hidden"
-          onClick={onBack}
-          aria-label="Back"
-        >
-          ←
-        </button>
-      ) : null}
+  const { isOpen, openContactDetail, closeContactDetail, handleAction } =
+    useContactDetail();
 
-      <div className="avatar">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral text-neutral-content flex items-center justify-center">
-          {chat?.room?.image_url ? (
-            <Image
-              src={chat.room.image_url}
-              alt={chat.room.name}
-              width={40}
-              height={40}
-              className="rounded-full object-cover"
-            />
-          ) : (
-            <span className="font-bold text-white">
-              {chat?.room?.name?.charAt(0).toUpperCase() ?? "?"}
-            </span>
-          )}
+  const handleOpenDetail = () => {
+    if (chat) {
+      openContactDetail(chat);
+    }
+  };
+
+  return (
+    <>
+      <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4">
+        {onBack ? (
+          <button
+            className="btn btn-ghost btn-sm lg:hidden"
+            onClick={onBack}
+            aria-label="Back"
+          >
+            ←
+          </button>
+        ) : null}
+
+        <div className="avatar">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral text-neutral-content flex items-center justify-center">
+            {chat?.room?.image_url ? (
+              <Image
+                src={chat.room.image_url}
+                alt={chat.room.name}
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <span className="font-bold text-white">
+                {chat?.room?.name?.charAt(0).toUpperCase() ?? "?"}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="flex flex-col flex-1 cursor-pointer hover:bg-base-200 p-2 rounded-lg transition-colors"
+          onClick={handleOpenDetail}
+        >
+          <span className="font-medium">{chat?.room.name ?? "Pilih chat"}</span>
+          <span className="text-xs opacity-70">
+            {otherParticipants.map((p) => p.displayName).join(", ")}
+            {me?.displayName ? `, ${me?.displayName}` : ""}
+          </span>
         </div>
       </div>
 
-      <div className="flex flex-col">
-        <span className="font-medium">{chat?.room.name ?? "Pilih chat"}</span>
-        <span className="text-xs opacity-70">
-          {otherParticipants.map((p) => p.displayName).join(", ")}
-          {me?.displayName ? `, ${me?.displayName}` : ""}
-        </span>
-      </div>
-    </div>
+      {/* Contact Detail Modal */}
+      {chat && (
+        <ContactDetailModal
+          contact={chat}
+          isOpen={isOpen}
+          onClose={closeContactDetail}
+        />
+      )}
+    </>
   );
 }
