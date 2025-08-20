@@ -1,7 +1,7 @@
 "use client";
 import { Result } from "../types";
 import Image from "next/image";
-import { SquarePen, UserRound, UsersRound } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import NewChatMenu from "./NewChatMenu";
 import { useState } from "react";
 
@@ -67,8 +67,8 @@ export default function ChatSidebar({
           return (
             <li key={chatId} className="w-full">
               <button
-                className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full ${
-                  isActive ? "bg-base-300" : "hover:bg-base-300/60"
+                className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200 ${
+                  isActive ? "bg-base-100" : ""
                 }`}
                 onClick={() => onSelectChat(chatId)}
               >

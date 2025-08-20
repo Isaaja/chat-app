@@ -17,7 +17,7 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
   const me = participants.find((p) => p.role === 1);
   const otherParticipants = participants.filter((p) => p.id !== me?.id);
 
-  const { isOpen, openContactDetail, closeContactDetail, handleAction } =
+  const { isOpen, openContactDetail, closeContactDetail } =
     useContactDetail();
 
   const handleOpenDetail = () => {
@@ -28,7 +28,7 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
 
   return (
     <>
-      <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4">
+      <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4 bg-base-300">
         {onBack ? (
           <button
             className="btn btn-ghost btn-sm lg:hidden"

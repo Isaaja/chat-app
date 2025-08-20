@@ -2,6 +2,9 @@
   "name": "chat-app-dev",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^6.14.0",
     "axios": "^1.11.0",
     "daisyui": "^5.0.50",
     "framer-motion": "^12.23.12",
