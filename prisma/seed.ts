@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-// Prisma client
 const prisma = new PrismaClient();
 
 async function main() {
@@ -10,50 +9,37 @@ async function main() {
   const data = await res.json();
 
   for (const item of data.results) {
-    const room = item.room;
-
-    await prisma.room.upsert({
-      where: { id: room.id },
-      update: {},
-      create: {
-        id: room.id,
-        name: room.name,
-        imageUrl: room.image_url,
+    const room = await prisma.room.create({
+      data: {
+        name: item.room.name,
+        imageUrl: item.room.image_url,
       },
     });
 
-    for (const p of room.participant) {
+    for (const p of item.room.participant) {
+      const participantId = p.id;
+
       await prisma.participant.upsert({
-        where: { id: p.id },
+        where: { id: participantId },
         update: {},
         create: {
-          id: p.id,
+          id: participantId,
           name: p.name,
           role: p.role,
         },
       });
 
-      await prisma.roomParticipant.upsert({
-        where: {
-          roomId_participantId: {
-            roomId: room.id,
-            participantId: p.id,
-          },
-        },
-        update: {},
-        create: {
+      await prisma.roomParticipant.create({
+        data: {
           roomId: room.id,
-          participantId: p.id,
+          participantId: participantId,
         },
       });
     }
 
     for (const c of item.comments) {
-      await prisma.comment.upsert({
-        where: { id: c.id },
-        update: {},
-        create: {
-          id: c.id,
+      await prisma.comment.create({
+        data: {
           type: c.type,
           message: c.message,
           senderId: c.sender,
@@ -63,7 +49,7 @@ async function main() {
     }
   }
 
-  console.log("✅ Database seeded successfully from API!");
+  console.log("✅ Database seeded successfully with nanoid!");
 }
 
 main()
