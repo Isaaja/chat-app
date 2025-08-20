@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import type { Participant as GlobalParticipant } from "../types";
 
 type ParticipantInput = {
   id: string;
@@ -11,19 +12,23 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onCreated?: () => void;
+  participants?: GlobalParticipant[];
 };
 
-export default function NewGroupModal({ open, onClose, onCreated }: Props) {
+export default function NewGroupModal({
+  open,
+  onClose,
+  onCreated,
+  participants,
+}: Props) {
   // Step control
   const [step, setStep] = useState<1 | 2>(1);
 
-  // Step 1: pick participants
   type Participant = { id: string; name: string; role: number };
   const [allContacts, setAllContacts] = useState<Participant[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Participant[]>([]);
 
-  // Step 2: group info
   const [groupName, setGroupName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
@@ -32,18 +37,12 @@ export default function NewGroupModal({ open, onClose, onCreated }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    // Load contacts
-    (async () => {
-      try {
-        const res = await fetch("/api/chat/participant", { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed loading contacts");
-        const data: Participant[] = await res.json();
-        setAllContacts(data);
-      } catch (e) {
-        // Silent fail; user can still type IDs manually on step 2 if needed
-      }
-    })();
-  }, [open]);
+    if (participants && participants.length) {
+      setAllContacts(participants);
+    } else {
+      setAllContacts([]);
+    }
+  }, [open, participants]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

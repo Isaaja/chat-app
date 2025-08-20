@@ -8,7 +8,8 @@ import ChatSidebarSkeleton from "@/features/chat/skeletons/ChatSidebarSkeleton";
 import ChatHeaderSkeleton from "@/features/chat/skeletons/ChatHeaderSkeleton";
 import ChatThreadSkeleton from "@/features/chat/skeletons/ChatThreadSkeleton";
 import type { Result, Comment } from "@/features/chat/types";
-import { fetchChatData } from "@/services/chat";
+import { fetchChatData, fetchParticipants } from "@/services/chat";
+import type { Participant } from "@/features/chat/types";
 
 export default function Page() {
   const [chats, setChats] = useState<Result[]>([]);
@@ -18,16 +19,22 @@ export default function Page() {
   const [error, setError] = useState<string | undefined>();
   const [isDesktop, setIsDesktop] = useState(false);
   const [showSidebarMobile, setShowSidebarMobile] = useState(true);
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     async function run() {
       try {
         setLoading(true);
-        const { chats, messages, activeChatId } = await fetchChatData();
+        const [chatRes, participantsRes] = await Promise.all([
+          fetchChatData(),
+          fetchParticipants(),
+        ]);
+        const { chats, messages, activeChatId } = chatRes;
         if (cancelled) return;
         setChats(chats);
         setMessages(messages);
+        setParticipants(participantsRes);
         if (activeChatId) setActiveChatId(activeChatId);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed fetching dummy data");
@@ -102,6 +109,7 @@ export default function Page() {
             chats={chats}
             activeChatId={activeChatId}
             onSelectChat={handleSelectChat}
+            participants={participants}
           />
         ))}
       {(isDesktop || !showSidebarMobile) && (

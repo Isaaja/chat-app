@@ -3,18 +3,21 @@ import { Result } from "../types";
 import Image from "next/image";
 import { SquarePen } from "lucide-react";
 import NewChatMenu from "./NewChatMenu";
+import type { Participant } from "../types";
 import { useState } from "react";
 
 type ChatSidebarProps = {
   chats: Result[];
   activeChatId?: string;
   onSelectChat: (chatId: string) => void;
+  participants?: Participant[];
 };
 
 export default function ChatSidebar({
   chats,
   activeChatId,
   onSelectChat,
+  participants,
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -30,7 +33,7 @@ export default function ChatSidebar({
           <summary className="btn btn-ghost rounded-xl p-2">
             <SquarePen className="w-6 h-6" />
           </summary>
-          <NewChatMenu isOpen={isOpen} />
+          <NewChatMenu isOpen={isOpen} participants={participants} />
         </details>
       </div>
 

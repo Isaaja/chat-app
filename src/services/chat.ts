@@ -1,4 +1,4 @@
-import type { Result, Comment } from "@/features/chat/types";
+import type { Result, Comment, Participant } from "@/features/chat/types";
 
 // Types matching the /api/chat response
 type ApiParticipant = {
@@ -88,4 +88,13 @@ export async function fetchChatData(): Promise<{
     messages,
     activeChatId: chats[0] ? String(chats[0].room.id) : undefined,
   };
+}
+
+export async function fetchParticipants(): Promise<Participant[]> {
+  const res = await fetch("/api/chat/participant", { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error("Failed to fetch participants");
+  }
+  const data: Participant[] = await res.json();
+  return data;
 }

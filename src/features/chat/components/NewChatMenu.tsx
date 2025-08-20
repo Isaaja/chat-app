@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserRound, UsersRound } from "lucide-react";
 import NewGroupModal from "./NewGroupModal";
 import NewContactModal from "./NewContactModal";
+import type { Participant } from "../types";
 
 type Props = {
   isOpen: boolean;
+  participants?: Participant[];
 };
 
-export default function NewChatMenu({ isOpen }: Props) {
+export default function NewChatMenu({ isOpen, participants }: Props) {
   const [openGroup, setOpenGroup] = useState(false);
   const [openContact, setOpenContact] = useState(false);
 
@@ -23,7 +25,7 @@ export default function NewChatMenu({ isOpen }: Props) {
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="absolute top-16 right-4 sm:right-1/2 sm:translate-x-1/2 
-                 bg-base-100 rounded-xl z-10 w-56 p-3 shadow-lg"
+                 bg-base-100 rounded-xl z-10 w-56 p-3 shadow-xl"
         >
           <h1 className="text-lg font-bold text-center mb-2">New Chat</h1>
 
@@ -56,6 +58,7 @@ export default function NewChatMenu({ isOpen }: Props) {
       <NewGroupModal
         open={openGroup}
         onClose={() => setOpenGroup(false)}
+        participants={participants}
         key="new-group-modal"
       />
       <NewContactModal
