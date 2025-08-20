@@ -1,5 +1,18 @@
-import { http } from "@/lib/http";
-import type { Result, Comment, Room } from "@/features/chat/types";
+import type { Result, Comment } from "@/features/chat/types";
+
+// Types matching the /api/chat response
+type ApiParticipant = {
+  id: string;
+  name: string;
+  role: number;
+};
+
+type ApiRoom = {
+  id: number;
+  name: string;
+  image_url?: string;
+  participant: ApiParticipant[];
+};
 
 type ApiComment = {
   id: number | string;
@@ -8,13 +21,13 @@ type ApiComment = {
   sender: string;
 };
 
+type ApiResult = {
+  room: ApiRoom;
+  comments: ApiComment[];
+};
+
 type ApiResponse = {
-  results?: Array<{
-    room: Room;
-    comments: ApiComment[];
-  }>;
-  room?: Room;
-  comments?: ApiComment[];
+  results?: ApiResult[];
 };
 
 function generateTimestamp(baseISO: string, offsetMinutes: number): string {
@@ -28,27 +41,30 @@ export async function fetchChatData(): Promise<{
   messages: Comment[];
   activeChatId?: string;
 }> {
-  const res = await http.get<ApiResponse>("/api/chat");
-  const data = res.data;
+  const res = await fetch("/api/chat", { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error("Failed to fetch chat data");
+  }
+  const data: ApiResponse = await res.json();
 
-  const results =
-    data.results ??
-    (data.room && data.comments
-      ? [{ room: data.room, comments: data.comments }]
-      : []);
-
+  const results: ApiResult[] = data.results ?? [];
   if (!results.length) {
     return { chats: [], messages: [], activeChatId: undefined };
   }
 
-  const baseISO = "2024-01-01T09:00:00.000Z";
+  const baseISO = new Date().toISOString();
   const chats: Result[] = [];
   const messages: Comment[] = [];
 
   results.forEach(({ room, comments }, roomIndex) => {
     const chat: Result = {
-      room,
-      comments: comments.map((c) => ({
+      room: {
+        id: room.id,
+        name: room.name,
+        image_url: room.image_url,
+        participant: room.participant,
+      },
+      comments: comments.map((c, idx) => ({
         id: c.id,
         type: c.type,
         message: c.message,
@@ -57,15 +73,11 @@ export async function fetchChatData(): Promise<{
           name: c.sender,
           avatar: undefined,
         },
-        timestamp: generateTimestamp(
-          baseISO,
-          comments.indexOf(c) + roomIndex * 100
-        ),
+        timestamp: generateTimestamp(baseISO, idx + roomIndex * 100),
       })),
     };
     chats.push(chat);
 
-    // Add all comments to messages array
     chat.comments.forEach((c) => {
       messages.push(c);
     });

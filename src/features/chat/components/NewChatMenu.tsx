@@ -1,12 +1,18 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserRound, UsersRound } from "lucide-react";
+import { useState } from "react";
+import NewGroupModal from "./NewGroupModal";
+import NewContactModal from "./NewContactModal";
 
 type Props = {
   isOpen: boolean;
 };
 
 export default function NewChatMenu({ isOpen }: Props) {
+  const [openGroup, setOpenGroup] = useState(false);
+  const [openContact, setOpenContact] = useState(false);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -20,20 +26,31 @@ export default function NewChatMenu({ isOpen }: Props) {
           <h1 className="text-lg font-bold text-center mb-2">New Chat</h1>
 
           <li>
-            <a className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer">
+            <button
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer w-full text-left"
+              onClick={() => setOpenGroup(true)}
+            >
               <UsersRound className="w-6 h-6 text-primary" />
               <span className="font-medium">New Group</span>
-            </a>
+            </button>
           </li>
 
           <li>
-            <a className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer">
+            <button
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer w-full text-left"
+              onClick={() => setOpenContact(true)}
+            >
               <UserRound className="w-6 h-6 text-primary" />
               <span className="font-medium">New Contact</span>
-            </a>
+            </button>
           </li>
         </motion.ul>
       )}
+      <NewGroupModal open={openGroup} onClose={() => setOpenGroup(false)} />
+      <NewContactModal
+        open={openContact}
+        onClose={() => setOpenContact(false)}
+      />
     </AnimatePresence>
   );
 }
