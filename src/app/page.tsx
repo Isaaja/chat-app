@@ -99,6 +99,10 @@ export default function Page() {
     );
   }
 
+  function handleUpload(file: File) {
+    console.log(file);
+  }
+
   return (
     <div className="w-full h-dvh flex bg-base">
       {(isDesktop || showSidebarMobile) &&
@@ -131,7 +135,7 @@ export default function Page() {
           ) : (
             <ChatThread messages={visibleMessages} />
           )}
-          <ChatInput onSend={handleSend} />
+          <ChatInput onSend={handleSend} onUpload={handleUpload} />
         </main>
       )}
     </div>

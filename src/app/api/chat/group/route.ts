@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
-import { nanoid } from "nanoid";
 
 export async function POST(req: Request) {
   try {
@@ -14,9 +13,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const roomId = nanoid(16);
     const room = await prisma.room.create({
-      data: { id: parseInt(roomId), name, imageUrl: imageUrl ?? null },
+      data: { name, imageUrl: imageUrl ?? null },
     });
 
     if (Array.isArray(participants) && participants.length > 0)

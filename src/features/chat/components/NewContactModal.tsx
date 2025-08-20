@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import { UserRound } from "lucide-react";
 type Props = {
   open: boolean;
@@ -58,7 +57,7 @@ export default function NewContactModal({ open, onClose, onCreated }: Props) {
         <div className="flex flex-col">
           <div className="flex flex-col gap-1">
             <h3 className="text-sm font-medium">Email</h3>
-            <label className="input validator flex items-center gap-2">
+            <label className="input validator flex items-center gap-2 sm:w-96">
               <svg
                 className="h-5 w-5 opacity-50"
                 xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +90,7 @@ export default function NewContactModal({ open, onClose, onCreated }: Props) {
 
           <div className="flex flex-col gap-1 mt-2">
             <h3 className="text-sm font-medium">Name</h3>
-            <label className="input validator flex items-center gap-2">
+            <label className="input validator flex items-center gap-2 sm:w-96">
               <svg
                 className="h-5 w-5 opacity-50"
                 xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +128,7 @@ export default function NewContactModal({ open, onClose, onCreated }: Props) {
         {error && <div className="text-error text-sm mt-2">{error}</div>}
 
         {/* Footer */}
-        <div className="mt-2 border-t-white w-full pt-4 flex justify-between gap-4">
+        <div className="mt-2 border-t-2 border-white w-full pt-4 flex justify-between gap-4">
           <button
             className="btn btn-primary flex-1"
             onClick={handleSubmit}

@@ -1,12 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import type { Participant as GlobalParticipant } from "../types";
-
-type ParticipantInput = {
-  id: string;
-  name: string;
-  role: number;
-};
+import SearchInput from "../common/SearchInput";
 
 type Props = {
   open: boolean;
@@ -21,7 +16,6 @@ export default function NewGroupModal({
   onCreated,
   participants,
 }: Props) {
-  // Step control
   const [step, setStep] = useState<1 | 2>(1);
 
   type Participant = { id: string; name: string; role: number };
@@ -134,14 +128,7 @@ export default function NewGroupModal({
             )}
 
             {/* Search */}
-            <div className="p-4">
-              <input
-                className="input input-bordered w-full"
-                placeholder="Search name or ID"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
+            <SearchInput query={query} setQuery={setQuery} />
 
             {/* Contact list */}
             <div className="max-h-[50vh] overflow-y-auto">

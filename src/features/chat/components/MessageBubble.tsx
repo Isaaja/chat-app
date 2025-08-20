@@ -1,26 +1,44 @@
 import { Comment } from "../types";
+import DefaultAvatar from "../common/DefaultAvatar";
 
 type MessageBubbleProps = {
   comment: Comment;
 };
 
 export default function MessageBubble({ comment }: MessageBubbleProps) {
-  const isMine = comment.sender.name === "agent@mail.com";
+  const isMine = comment.sender.id === "me" || comment.sender.name === "Me";
+  const position = isMine ? "chat-end" : "chat-start";
+
   return (
-    <div className={`w-full flex ${isMine ? "justify-end" : "justify-start"}`}>
+    <div className={`chat ${position}`}>
+      {!isMine && (
+        <div className="chat-image">
+          <DefaultAvatar name={comment.sender.name} />
+        </div>
+      )}
+
+      {!isMine && (
+        <div className="chat-header">
+          <span className="text-xs opacity-70">{comment.sender.name}</span>
+        </div>
+      )}
+
       <div
-        className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow ${
-          isMine ? "bg-primary text-primary-content" : "bg-base-200"
+        className={`chat-bubble ${
+          isMine ? "bg-primary text-primary-content" : ""
         }`}
       >
-        <div className="whitespace-pre-wrap break-words">{comment.message}</div>
-        <div className={`text-[10px] opacity-70 mt-1 text-right`}>
-          {new Date(comment.timestamp ?? "").toLocaleTimeString([], {
+        {comment.message}
+      </div>
+
+      {comment.timestamp ? (
+        <div className="chat-footer text-[10px] opacity-70">
+          {new Date(comment.timestamp).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

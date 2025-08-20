@@ -1,7 +1,7 @@
 import { Result } from "../types";
 import Image from "next/image";
 import { ContactDetailModal, useContactDetail } from "../../contact-detail";
-
+import DefaultAvatar from "../common/DefaultAvatar";
 type ChatHeaderProps = {
   chat?: Result;
   onBack?: () => void;
@@ -49,9 +49,7 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
                 className="rounded-full object-cover"
               />
             ) : (
-              <span className="font-bold text-white">
-                {chat?.room?.name?.charAt(0).toUpperCase() ?? "?"}
-              </span>
+              <DefaultAvatar name={chat?.room?.name ?? ""} />
             )}
           </div>
         </div>

@@ -5,6 +5,8 @@ import { SquarePen } from "lucide-react";
 import NewChatMenu from "./NewChatMenu";
 import type { Participant } from "../types";
 import { useState } from "react";
+import SearchInput from "../common/SearchInput";
+import DefaultAvatar from "../common/DefaultAvatar";
 
 type ChatSidebarProps = {
   chats: Result[];
@@ -20,6 +22,7 @@ export default function ChatSidebar({
   participants,
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
   return (
     <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col">
       {/* Header */}
@@ -38,27 +41,7 @@ export default function ChatSidebar({
       </div>
 
       {/* Search */}
-      <div className="p-3">
-        <label className="input items-center w-full">
-          <svg
-            className="h-[1em] opacity-50"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <g
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              strokeWidth="2.5"
-              fill="none"
-              stroke="currentColor"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </g>
-          </svg>
-          <input type="search" placeholder="Search" className="grow" />
-        </label>
-      </div>
+      <SearchInput query={query} setQuery={setQuery} />
 
       {/* Chat List */}
       <ul className="menu px-1 overflow-y-auto flex-1 w-full">
@@ -77,7 +60,7 @@ export default function ChatSidebar({
               >
                 {/* Avatar */}
                 <div className="avatar avatar-offline flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
                     {chat.room.image_url ? (
                       <Image
                         src={chat.room.image_url}
@@ -87,11 +70,7 @@ export default function ChatSidebar({
                         className="rounded-full object-cover"
                       />
                     ) : (
-                      <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium">
-                          {(chat.room.name?.charAt(0) ?? "?").toUpperCase()}
-                        </span>
-                      </div>
+                      <DefaultAvatar name={chat.room.name} />
                     )}
                   </div>
                 </div>
