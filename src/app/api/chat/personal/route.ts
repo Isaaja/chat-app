@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validatePost, validateGet } from "./validate";
 
+function parseUploadsField(uploads: string | string[]): string[] {
+  if (!uploads) return [];
+  if (Array.isArray(uploads)) return uploads;
+  if (typeof uploads === "string") {
+    try {
+      const parsed = JSON.parse(uploads);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
 const AGENT_ID = "agent@mail.com";
 const AGENT_NAME = "Agent A";
 const AGENT_ROLE = 1;
@@ -161,6 +175,7 @@ export async function GET(req: Request) {
       comments: comments.map((c) => ({
         id: c.id,
         message: c.message,
+        uploads: parseUploadsField(c.uploads || "[]"),
         sender: {
           id: c.sender.id,
           name: c.sender.name,

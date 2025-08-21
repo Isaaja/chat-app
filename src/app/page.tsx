@@ -175,7 +175,6 @@ export default function Page() {
           <div className="flex-shrink-0">
             <ChatInput
               onMessageSent={handleMessageSentFromChild}
-              onUpload={handleUpload}
               roomId={activeChat ? Number(activeChat.room.id) : undefined}
             />
           </div>

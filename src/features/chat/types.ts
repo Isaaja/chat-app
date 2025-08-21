@@ -50,4 +50,5 @@ export type ChatComment = {
   timestamp: string;
   status: "pending" | "delivered" | "failed";
   tempId?: string;
+  // uploads?: string[];
 };

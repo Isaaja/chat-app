@@ -1,6 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+function parseUploadsField(uploads: string | string[]): string[] {
+  if (!uploads) return [];
+  if (Array.isArray(uploads)) return uploads;
+  if (typeof uploads === "string") {
+    try {
+      const parsed = JSON.parse(uploads);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
 export async function GET() {
   try {
     const rooms = await prisma.room.findMany({
@@ -32,7 +46,9 @@ export async function GET() {
       comments: room.comments.map((c) => ({
         id: c.id,
         message: c.message,
+        uploads: parseUploadsField(c.uploads || "[]"),
         sender: c.sender?.id,
+        createdAt: c.createdAt,
       })),
     }));
 

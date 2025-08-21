@@ -1,5 +1,20 @@
 import type { Result, Comment, Participant } from "@/features/chat/types";
 
+// Helper function to parse uploads field (handles both JSON string and array)
+function parseUploadsField(uploads: string[]): string[] {
+  if (!uploads) return [];
+  if (Array.isArray(uploads)) return uploads;
+  if (typeof uploads === "string") {
+    try {
+      const parsed = JSON.parse(uploads);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
 type ApiParticipant = {
   id: string;
   name: string;
@@ -18,6 +33,7 @@ type ApiComment = {
   type: string;
   message: string;
   sender: string;
+  uploads?: string[];
 };
 
 type ApiResult = {
@@ -67,6 +83,7 @@ export async function fetchChatData(): Promise<{
         id: c.id,
         type: c.type,
         message: c.message,
+        uploads: parseUploadsField(c.uploads ?? []),
         sender: {
           id: c.sender,
           name: c.sender,
