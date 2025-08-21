@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/client";
+import { prisma } from "@/lib/prisma";
 import { validateGroupPayload } from "./validate";
 
 const AGENT_ID = "agent@mail.com";

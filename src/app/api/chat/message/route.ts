@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/client";
+import { prisma } from "@/lib/prisma";
 import { validateMessagePayload } from "./validate";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { roomId, senderId, message } = body ?? {};
-
-    const validationError = await validateMessagePayload({
-      roomId,
-      senderId,
-      message,
-    });
-    if (validationError) return validationError;
+    if (senderId) {
+      const validationError = await validateMessagePayload({
+        roomId,
+        senderId,
+        message,
+      });
+      if (validationError) return validationError;
+    }
 
     const room = await prisma.room.findUnique({
       where: { id: roomId },
