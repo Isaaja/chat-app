@@ -278,6 +278,38 @@ export async function getPersonalMessages(
 }
 
 /**
+ * Upload file ke message yang sudah ada
+ */
+export async function uploadFileToMessage(
+  messageId: string,
+  file: File,
+  type: "IMAGE" | "VIDEO" | "DOCUMENT"
+): Promise<{
+  id: number;
+  type: string;
+  url: string;
+  filename: string;
+  fileSize: number;
+  commentId: number;
+}> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("messageId", messageId);
+  formData.append("type", type);
+
+  const res = await fetch("/api/chat/uploads", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    await throwHttpError(res, "Failed to upload file");
+  }
+
+  return res.json();
+}
+
+/**
  * Membuat group chat baru
  */
 export async function createGroup(data: {

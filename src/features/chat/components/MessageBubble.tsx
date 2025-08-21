@@ -111,8 +111,8 @@ export default function MessageBubble({
                       <Image
                         src={url}
                         alt={comment.message || `image-${idx}`}
-                        width={600} // bisa disesuaikan
-                        height={400} // bisa disesuaikan
+                        width={600}
+                        height={400}
                         style={{
                           objectFit: "cover",
                           width: "100%",

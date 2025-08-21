@@ -7,7 +7,7 @@ import {
   FileText,
   X,
 } from "lucide-react";
-import { sendMessage } from "@/services/chat";
+import { sendMessage, uploadFileToMessage } from "@/services/chat";
 import type { ChatComment } from "@/features/chat/types";
 import Image from "next/image";
 type ChatInputProps = {
@@ -192,7 +192,7 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
     const pendingMessage: ChatComment = {
       id: tempId,
       type: "file",
-      message: "", // Empty message for file-only uploads
+      message: "",
       sender: { id: "me", name: "Me", avatar: undefined },
       timestamp: new Date().toISOString(),
       status: "pending",
@@ -202,16 +202,25 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
     try {
       setUploading(true);
 
+      // 1. Create message first
       const createdMessage = await sendMessage({
         roomId,
-        message: "", // Empty message for file uploads
+        message: "",
         type: "file",
       });
+
+      // 2. Upload file to the created message
+      const attachmentType = getAttachmentType(pendingFile.type);
+      const uploadResult = await uploadFileToMessage(
+        String(createdMessage.id),
+        pendingFile,
+        attachmentType
+      );
 
       const deliveredMessage: ChatComment = {
         id: String(createdMessage.id),
         type: "file",
-        message: "", // Empty message for file-only uploads
+        message: "",
         sender: {
           id: createdMessage.sender.id,
           name: createdMessage.sender.name,
@@ -220,6 +229,7 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
         timestamp: new Date(createdMessage.createdAt).toISOString(),
         status: "delivered",
         tempId: tempId,
+        uploads: [uploadResult.url], // Add uploaded file URL
       };
 
       onMessageSent?.(deliveredMessage);

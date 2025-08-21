@@ -11,7 +11,6 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as "IMAGE" | "VIDEO" | "DOCUMENT";
     const messageId = formData.get("messageId") as string;
 
-    // Debug logging
     console.log("🔍 Upload Debug Info:");
     console.log(
       "- File:",
@@ -129,7 +128,7 @@ export async function POST(req: NextRequest) {
       id: Number(messageId),
       type,
       url: urlData.publicUrl,
-      filename: file.name, // Fixed: use actual filename
+      filename: file.name,
       fileSize: file.size,
       commentId: Number(messageId),
     };
