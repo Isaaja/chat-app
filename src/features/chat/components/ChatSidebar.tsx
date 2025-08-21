@@ -7,6 +7,7 @@ import type { Participant } from "../types";
 import { useMemo, useState } from "react";
 import SearchInput from "../common/SearchInput";
 import DefaultAvatar from "../common/DefaultAvatar";
+import { formatTimeWithAMPM } from "@/lib/time";
 
 type ChatSidebarProps = {
   chats: Result[];
@@ -30,27 +31,39 @@ export default function ChatSidebar({
   const filteredResults = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    // If no query, return existing chats only
-    if (!q) return { chats, participants: [] };
+    // Function to get timestamp as number safely
+    const getTime = (timestamp?: string) =>
+      timestamp ? new Date(timestamp).getTime() : 0;
+
+    // If no query, return existing chats sorted by last message timestamp
+    if (!q) {
+      const sortedChats = [...chats].sort((a, b) => {
+        const aTime = getTime(a.comments[a.comments.length - 1]?.timestamp);
+        const bTime = getTime(b.comments[b.comments.length - 1]?.timestamp);
+        return bTime - aTime;
+      });
+      return { chats: sortedChats, participants: [] };
+    }
 
     // Filter existing chats
-    const filteredChats = chats.filter((chat) => {
-      // Search by room name
-      const roomNameMatch = chat.room.name.toLowerCase().includes(q);
+    const filteredChats = chats
+      .filter((chat) => {
+        const roomNameMatch = chat.room.name.toLowerCase().includes(q);
+        const participantMatch = chat.room.participant.some(
+          (p) =>
+            p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
+        );
+        const lastMessage = chat.comments[chat.comments.length - 1];
+        const messageMatch =
+          lastMessage?.message?.toLowerCase().includes(q) || false;
 
-      // Search by participant names in the room
-      const participantMatch = chat.room.participant.some(
-        (p) =>
-          p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
-      );
-
-      // Search by last message content
-      const lastMessage = chat.comments[chat.comments.length - 1];
-      const messageMatch =
-        lastMessage?.message?.toLowerCase().includes(q) || false;
-
-      return roomNameMatch || participantMatch || messageMatch;
-    });
+        return roomNameMatch || participantMatch || messageMatch;
+      })
+      .sort((a, b) => {
+        const aTime = getTime(a.comments[a.comments.length - 1]?.timestamp);
+        const bTime = getTime(b.comments[b.comments.length - 1]?.timestamp);
+        return bTime - aTime;
+      });
 
     // Filter all participants from database for personal chat creation
     const filteredParticipants =
@@ -104,6 +117,10 @@ export default function ChatSidebar({
             const isActive = chatId === activeChatId;
             const lastMessage = chat.comments[chat.comments.length - 1];
 
+            const formattedTime = lastMessage?.timestamp
+              ? formatTimeWithAMPM(lastMessage.timestamp)
+              : "";
+
             return (
               <li key={chatId} className="w-full">
                 <button
@@ -136,12 +153,7 @@ export default function ChatSidebar({
                         {chat.room.name}
                       </span>
                       <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
-                        {lastMessage?.timestamp
-                          ? new Date(lastMessage.timestamp).toLocaleTimeString(
-                              [],
-                              { hour: "2-digit", minute: "2-digit" }
-                            )
-                          : ""}
+                        {formattedTime}
                       </span>
                     </div>
                     <div className="text-sm opacity-70 flex items-center gap-2 w-full">

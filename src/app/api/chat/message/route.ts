@@ -78,7 +78,7 @@ export async function POST(req: Request) {
           role: p.participant.role,
         })),
       },
-      createdAt: newComment.createdAt,
+      createdAt: newComment.createdAt.toISOString(),
     };
 
     return NextResponse.json(response, { status: 201 });
@@ -159,7 +159,7 @@ export async function GET(req: Request) {
           name: c.sender.name,
           role: c.sender.role,
         },
-        createdAt: c.createdAt,
+        createdAt: c.createdAt.toISOString(),
       })),
       pagination: {
         limit,

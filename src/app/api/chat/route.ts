@@ -48,7 +48,7 @@ export async function GET() {
         message: c.message,
         uploads: parseUploadsField(c.uploads || "[]"),
         sender: c.sender?.id,
-        createdAt: c.createdAt,
+        createdAt: c.createdAt.toISOString(),
       })),
     }));
 

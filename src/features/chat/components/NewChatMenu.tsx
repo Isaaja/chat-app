@@ -30,9 +30,9 @@ export default function NewChatMenu({
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="absolute top-16 right-4 sm:right-1/2 sm:translate-x-1/2 
-                 bg-base-100 rounded-xl z-10 w-56 p-3 shadow-xl"
+                 bg-base-100 rounded-xl z-10 w-48 p-3 shadow-xl"
         >
-          <h1 className="text-lg font-bold text-center mb-2">New Chat</h1>
+          <h1 className="text-lg font-bold mb-2 text-center">New Chat</h1>
 
           <li>
             <button

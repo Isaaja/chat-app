@@ -38,6 +38,7 @@ type ApiComment = {
   message: string;
   sender: string;
   uploads?: string[];
+  createdAt: string;
 };
 
 type ApiResult = {
@@ -48,12 +49,6 @@ type ApiResult = {
 type ApiResponse = {
   results?: ApiResult[];
 };
-
-function generateTimestamp(baseISO: string, offsetMinutes: number): string {
-  const base = new Date(baseISO);
-  base.setMinutes(base.getMinutes() + offsetMinutes);
-  return base.toISOString();
-}
 
 export async function fetchChatData(): Promise<{
   chats: Result[];
@@ -71,11 +66,10 @@ export async function fetchChatData(): Promise<{
     return { chats: [], messages: [], activeChatId: undefined };
   }
 
-  const baseISO = new Date().toISOString();
   const chats: Result[] = [];
   const messages: (Comment | ChatComment)[] = [];
 
-  results.forEach(({ room, comments }, roomIndex) => {
+  results.forEach(({ room, comments }) => {
     const chat: Result = {
       room: {
         id: room.id,
@@ -83,7 +77,7 @@ export async function fetchChatData(): Promise<{
         image_url: room.image_url,
         participant: room.participant,
       },
-      comments: comments.map((c, idx) => ({
+      comments: comments.map((c) => ({
         id: c.id,
         type: c.type,
         comment: c.message,
@@ -94,7 +88,7 @@ export async function fetchChatData(): Promise<{
           name: c.sender,
           avatar: undefined,
         },
-        timestamp: generateTimestamp(baseISO, idx + roomIndex * 100),
+        timestamp: c.createdAt, // Use actual createdAt from database
       })),
     };
     chats.push(chat);
@@ -107,7 +101,7 @@ export async function fetchChatData(): Promise<{
   return {
     chats,
     messages,
-    activeChatId: chats[0] ? String(chats[0].room.id) : undefined,
+    activeChatId: undefined, // Don't auto-select any chat on initial load
   };
 }
 

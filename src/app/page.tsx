@@ -147,11 +147,27 @@ export default function Page() {
         <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
           {loading ? (
             <ChatHeaderSkeleton />
-          ) : (
+          ) : activeChat ? (
             <ChatHeader
               chat={activeChat}
               onBack={!isDesktop ? () => setShowSidebarMobile(true) : undefined}
             />
+          ) : (
+            <div className="p-4 border-b border-base-300 bg-base-300">
+              <div className="flex items-center gap-3 ">
+                {!isDesktop && (
+                  <button
+                    onClick={() => setShowSidebarMobile(true)}
+                    className="btn btn-ghost btn-sm"
+                  >
+                    ←
+                  </button>
+                )}
+                <h1 className="text-lg font-semibold text-base-content">
+                  Select a Chat
+                </h1>
+              </div>
+            </div>
           )}
           {loading ? (
             <ChatThreadSkeleton />
@@ -159,7 +175,7 @@ export default function Page() {
             <div className="flex-1 grid place-items-center text-error">
               {error}
             </div>
-          ) : (
+          ) : activeChat ? (
             <ChatThread
               messages={visibleMessages}
               myId={myId}
@@ -171,13 +187,31 @@ export default function Page() {
                     .length === 1)
               }
             />
+          ) : (
+            <div className="flex-1 grid place-items-center text-base-content/60 bg-base-100">
+              <div className="text-center space-y-4">
+                <div className="text-6xl">💬</div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">
+                    Welcome to Chat App
+                  </h2>
+                  <p className="text-base-content/70">
+                    {chats.length === 0
+                      ? "No conversations yet. Create a new chat to get started!"
+                      : "Select a conversation from the sidebar to start chatting"}
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
-          <div className="flex-shrink-0">
-            <ChatInput
-              onMessageSent={handleMessageSentFromChild}
-              roomId={activeChat ? Number(activeChat.room.id) : undefined}
-            />
-          </div>
+          {activeChat && (
+            <div className="flex-shrink-0">
+              <ChatInput
+                onMessageSent={handleMessageSentFromChild}
+                roomId={activeChat ? Number(activeChat.room.id) : undefined}
+              />
+            </div>
+          )}
         </main>
       )}
     </div>

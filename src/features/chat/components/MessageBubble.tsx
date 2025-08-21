@@ -5,6 +5,7 @@ import DefaultAvatar from "../common/DefaultAvatar";
 import Image from "next/image";
 import { Download } from "lucide-react";
 import { Comment, ChatComment } from "../types";
+import { formatTime } from "@/lib/time";
 
 type MessageBubbleProps = {
   comment: Comment | ChatComment;
@@ -262,10 +263,7 @@ export default function MessageBubble({
       {/* Timestamp & status */}
       {comment.timestamp && (
         <div className="chat-footer text-[10px] opacity-70">
-          {new Date(comment.timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatTime(comment.timestamp)}
           {comment.status && (
             <span className="text-xs ml-1">
               {comment.status === "pending" && "⏳"}

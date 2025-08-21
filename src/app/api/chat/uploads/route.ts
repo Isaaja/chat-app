@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
       message: comment.message,
       uploads: comment.uploads || [],
       sender: comment.sender,
-      createdAt: comment.createdAt,
+      createdAt: comment.createdAt.toISOString(),
     });
   } catch (err: unknown) {
     console.error("Get uploads error:", err);

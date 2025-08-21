@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { sendMessage, uploadFileToMessage } from "@/services/chat";
 import type { ChatComment } from "@/features/chat/types";
+import { createMessageTimestamp } from "@/lib/time";
 import Image from "next/image";
 type ChatInputProps = {
   onMessageSent?: (message: ChatComment) => void;
@@ -38,7 +39,7 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
       type: "text",
       message: trimmed,
       sender: { id: "me", name: "Me", avatar: undefined },
-      timestamp: new Date().toISOString(),
+      timestamp: createMessageTimestamp(),
       status: "pending",
     };
     onMessageSent?.(pendingMessage);
@@ -194,7 +195,7 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
       type: "file",
       message: "",
       sender: { id: "me", name: "Me", avatar: undefined },
-      timestamp: new Date().toISOString(),
+      timestamp: createMessageTimestamp(),
       status: "pending",
     };
     onMessageSent?.(pendingMessage);

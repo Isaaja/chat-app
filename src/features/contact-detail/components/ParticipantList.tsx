@@ -14,7 +14,7 @@ export default function ParticipantList({
 
           {/* Participant Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex  gap-2">
               <span className="font-medium truncate">{participant.name}</span>
               {participant.role === 0 && (
                 <span className="badge badge-secondary badge-xs">Admin</span>
@@ -23,7 +23,9 @@ export default function ParticipantList({
                 <span className="badge badge-primary badge-xs">You</span>
               )}
             </div>
-            <p className="text-xs opacity-70 truncate">{participant.id}</p>
+            <p className="text-xs opacity-70 truncate text-left ">
+              {participant.id}
+            </p>
           </div>
 
           {/* Role Badge */}

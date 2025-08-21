@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         uploads: parseUploadsField(
           comment.uploads ? JSON.parse(comment.uploads) : []
         ),
-        createdAt: comment.createdAt,
+        createdAt: comment.createdAt.toISOString(),
         sender: comment.sender,
       },
       schema: schemaInfo,
