@@ -17,8 +17,3 @@ export interface GroupInfoProps {
 export interface ParticipantListProps {
   participants: Result["room"]["participant"];
 }
-
-export interface ContactActionsProps {
-  contact: Result;
-  onAction: (action: string) => void;
-}

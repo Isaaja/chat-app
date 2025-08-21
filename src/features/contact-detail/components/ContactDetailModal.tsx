@@ -2,7 +2,6 @@
 import { ContactDetailProps } from "../types";
 import ContactInfo from "./ContactInfo";
 import GroupInfo from "./GroupInfo";
-import ContactActions from "./ContactActions";
 
 export default function ContactDetailModal({
   contact,
@@ -29,13 +28,6 @@ export default function ContactDetailModal({
           ) : (
             <ContactInfo contact={contact} />
           )}
-
-          <ContactActions
-            contact={contact}
-            onAction={(action) => {
-              console.log("Action:", action);
-            }}
-          />
         </div>
       </div>
       <div className="modal-backdrop" onClick={onClose}></div>
