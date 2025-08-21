@@ -184,46 +184,10 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
     setPreviewUrl(URL.createObjectURL(file));
   }
 
-  // Upload file attachment to existing message
-  async function uploadFileAttachment(messageId: number, file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("messageId", String(messageId));
-    formData.append("type", getAttachmentType(file.type));
-
-    // Debug logging
-    console.log("📤 ChatInput Upload Debug:");
-    console.log("- MessageId:", messageId);
-    console.log(
-      "- File:",
-      file ? `${file.name} (${file.size} bytes, ${file.type})` : "NULL"
-    );
-    console.log("- AttachmentType:", getAttachmentType(file.type));
-
-    const response = await fetch("/api/chat/uploads", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        "❌ Upload failed:",
-        response.status,
-        response.statusText,
-        errorText
-      );
-      throw new Error(`Upload failed: ${response.statusText}`);
-    }
-
-    return await response.json();
-  }
-
   async function handleSendFile() {
     if (!pendingFile || !roomId) return;
 
     const tempId = crypto.randomUUID();
-    const attachmentType = getAttachmentType(pendingFile.type);
 
     const pendingMessage: ChatComment = {
       id: tempId,
@@ -238,20 +202,12 @@ export default function ChatInput({ onMessageSent, roomId }: ChatInputProps) {
     try {
       setUploading(true);
 
-      // Step 1: Create message first (empty message for file only)
       const createdMessage = await sendMessage({
         roomId,
         message: "", // Empty message for file uploads
         type: "file",
       });
 
-      // Step 2: Upload file attachment to the created message
-      const attachment = await uploadFileAttachment(
-        createdMessage.id,
-        pendingFile
-      );
-
-      // Step 3: Update message with attachment info
       const deliveredMessage: ChatComment = {
         id: String(createdMessage.id),
         type: "file",

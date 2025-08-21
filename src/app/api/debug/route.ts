@@ -1,20 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-// Helper function to parse uploads field (handles both JSON string and array)
-function parseUploadsField(uploads: any): string[] {
-  if (!uploads) return [];
-  if (Array.isArray(uploads)) return uploads;
-  if (typeof uploads === "string") {
-    try {
-      const parsed = JSON.parse(uploads);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
-    }
-  }
-  return [];
-}
+import { parseUploadsField } from "@/services/chat";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,7 +26,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    // Check database schema
     const schemaInfo = await prisma.$queryRaw`
       SELECT column_name, data_type, is_nullable 
       FROM information_schema.columns 
@@ -52,7 +37,9 @@ export async function GET(req: NextRequest) {
       comment: {
         id: comment.id,
         message: comment.message,
-        uploads: parseUploadsField((comment as any).uploads),
+        uploads: parseUploadsField(
+          comment.uploads ? JSON.parse(comment.uploads) : []
+        ),
         createdAt: comment.createdAt,
         sender: comment.sender,
       },
@@ -104,7 +91,9 @@ export async function POST(req: NextRequest) {
       updated: {
         id: updated?.id,
         message: updated?.message,
-        uploads: parseUploadsField((updated as any)?.uploads),
+        uploads: parseUploadsField(
+          updated?.uploads ? JSON.parse(updated.uploads) : []
+        ),
       },
     });
   } catch (error) {

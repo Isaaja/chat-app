@@ -1,15 +1,19 @@
-import type { Result, Comment, Participant } from "@/features/chat/types";
+import type {
+  Result,
+  Comment,
+  ChatComment,
+  Participant,
+} from "@/features/chat/types";
 
-// Helper function to parse uploads field (handles both JSON string and array)
-function parseUploadsField(uploads: string[]): string[] {
+export function parseUploadsField(uploads: string[]): string[] {
   if (!uploads) return [];
   if (Array.isArray(uploads)) return uploads;
   if (typeof uploads === "string") {
     try {
       const parsed = JSON.parse(uploads);
       return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
+    } catch (error) {
+      return error as string[];
     }
   }
   return [];
@@ -53,7 +57,7 @@ function generateTimestamp(baseISO: string, offsetMinutes: number): string {
 
 export async function fetchChatData(): Promise<{
   chats: Result[];
-  messages: Comment[];
+  messages: (Comment | ChatComment)[];
   activeChatId?: string;
 }> {
   const res = await fetch("/api/chat", { cache: "no-store" });
@@ -69,7 +73,7 @@ export async function fetchChatData(): Promise<{
 
   const baseISO = new Date().toISOString();
   const chats: Result[] = [];
-  const messages: Comment[] = [];
+  const messages: (Comment | ChatComment)[] = [];
 
   results.forEach(({ room, comments }, roomIndex) => {
     const chat: Result = {
@@ -82,6 +86,7 @@ export async function fetchChatData(): Promise<{
       comments: comments.map((c, idx) => ({
         id: c.id,
         type: c.type,
+        comment: c.message,
         message: c.message,
         uploads: parseUploadsField(c.uploads ?? []),
         sender: {

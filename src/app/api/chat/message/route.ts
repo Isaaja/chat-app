@@ -1,20 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateMessagePayload } from "./validate";
-
-function parseUploadsField(uploads: string | string[]): string[] {
-  if (!uploads) return [];
-  if (Array.isArray(uploads)) return uploads;
-  if (typeof uploads === "string") {
-    try {
-      const parsed = JSON.parse(uploads);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
-    }
-  }
-  return [];
-}
+import { parseUploadsField } from "@/services/chat";
 
 export async function POST(req: Request) {
   try {
@@ -166,7 +153,7 @@ export async function GET(req: Request) {
       comments: comments.map((c) => ({
         id: c.id,
         message: c.message,
-        uploads: parseUploadsField(c.uploads || "[]"),
+        uploads: parseUploadsField(c.uploads ? JSON.parse(c.uploads) : []),
         sender: {
           id: c.sender.id,
           name: c.sender.name,

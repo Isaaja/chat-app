@@ -21,27 +21,31 @@ export interface Sender {
 
 export interface Comment {
   id: string | number;
+  comment: string;
   type: string;
   message: string;
   sender: Sender;
   timestamp?: string;
+  status?: "pending" | "delivered" | "failed";
+  uploads?: string[];
 }
 
 export interface Result {
   room: Room;
-  comments: Comment[];
+  comments: (Comment | ChatComment)[];
 }
 
 export interface ApiResponse {
   results?: Result[];
   room?: Room;
-  comments?: Comment[];
+  comments?: (Comment | ChatComment)[];
 }
 
 export type ChatComment = {
   id: string;
   type: "text" | "image" | "file" | "audio" | "video";
   message: string;
+  comment?: string;
   sender: {
     id: string;
     name: string;
@@ -50,5 +54,5 @@ export type ChatComment = {
   timestamp: string;
   status: "pending" | "delivered" | "failed";
   tempId?: string;
-  // uploads?: string[];
+  uploads?: string[];
 };

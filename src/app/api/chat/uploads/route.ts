@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         uploadsArray = [];
       }
     } catch (e) {
-      console.log("Failed to parse uploads, starting with empty array");
+      console.log(e);
       uploadsArray = [];
     }
 

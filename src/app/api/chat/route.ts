@@ -8,8 +8,8 @@ function parseUploadsField(uploads: string | string[]): string[] {
     try {
       const parsed = JSON.parse(uploads);
       return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
+    } catch (error) {
+      return error as string[];
     }
   }
   return [];

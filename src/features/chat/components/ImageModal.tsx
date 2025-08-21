@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { X, Download, ZoomIn, ZoomOut } from "lucide-react";
+import Image from "next/image";
 interface ImageModalProps {
   src: string;
   alt: string;
@@ -129,10 +130,13 @@ export default function ImageModal({
           className="transition-transform duration-200 ease-in-out bg-red-500"
           style={{ transform: `scale(${scale})` }}
         >
-          <img
+          <Image
             src={src}
             alt={alt}
             className="object-contain max-w-[90vw] max-h-[90vh] rounded-lg"
+            width={1000}
+            height={1000}
+            unoptimized
             onLoad={() => console.log("✅ Modal image loaded:", src)}
             onError={() => console.error("❌ Modal image failed:", src)}
           />

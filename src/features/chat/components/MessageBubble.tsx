@@ -1,25 +1,13 @@
 "use client";
 import { useState } from "react";
-import { FileText, Download } from "lucide-react";
 import ImageModal from "./ImageModal";
 import DefaultAvatar from "../common/DefaultAvatar";
 import Image from "next/image";
-
-type CommentType = {
-  id: number;
-  message?: string;
-  uploads?: string[];
-  sender: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  timestamp: string;
-  status?: "pending" | "delivered" | "failed";
-};
+import { Download } from "lucide-react";
+import { Comment, ChatComment } from "../types";
 
 type MessageBubbleProps = {
-  comment: CommentType;
+  comment: Comment | ChatComment;
   myId?: string;
   hideSenderInfo?: boolean;
 };
@@ -113,7 +101,7 @@ export default function MessageBubble({
         {/* Render uploads */}
         {hasUploads ? (
           <div className="space-y-2 relative">
-            {comment.uploads!.map((url, idx) => {
+            {comment.uploads!.map((url: string, idx: number) => {
               const type = detectFileType(url);
               return (
                 <div key={idx}>
@@ -133,7 +121,7 @@ export default function MessageBubble({
                         className="hover:opacity-90 transition-opacity rounded-lg"
                         onClick={() => setIsImageModalOpen(true)}
                         crossOrigin="anonymous"
-                        onError={(e) =>
+                        onError={() =>
                           console.error("❌ Image failed to load:", url)
                         }
                         onLoad={() => console.log("✅ Image loaded:", url)}
@@ -156,7 +144,7 @@ export default function MessageBubble({
                         className="w-56 rounded-lg"
                         controls
                         preload="metadata"
-                        onError={(e) => {
+                        onError={() => {
                           console.error("❌ Video failed to load:", url);
                         }}
                         onLoadedMetadata={() =>
@@ -265,7 +253,9 @@ export default function MessageBubble({
           </div>
         ) : (
           /* Render text only */
-          comment.message && <div>{comment.message}</div>
+          (comment.comment || comment.message) && (
+            <div>{comment.comment || comment.message}</div>
+          )
         )}
       </div>
 
