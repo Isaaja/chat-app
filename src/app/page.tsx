@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import ChatSidebar from "@/features/chat/components/ChatSidebar";

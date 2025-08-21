@@ -4,7 +4,7 @@ import Image from "next/image";
 import { SquarePen } from "lucide-react";
 import NewChatMenu from "./NewChatMenu";
 import type { Participant } from "../types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import SearchInput from "../common/SearchInput";
 import DefaultAvatar from "../common/DefaultAvatar";
 

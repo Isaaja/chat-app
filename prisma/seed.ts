@@ -40,7 +40,6 @@ async function main() {
     for (const c of item.comments) {
       await prisma.comment.create({
         data: {
-          type: c.type,
           message: c.message,
           senderId: c.sender,
           roomId: room.id,
