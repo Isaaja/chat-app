@@ -5,24 +5,19 @@ import { validateMessagePayload } from "./validate";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { roomId, senderId, message, type = "text" } = body ?? {};
-    if (senderId) {
-      const validationError = await validateMessagePayload({
-        roomId,
-        senderId,
-        message,
-        type,
-      });
-      if (validationError) return validationError;
-    }
+    const { roomId, senderId, message } = body ?? {};
+
+    const validationError = await validateMessagePayload({
+      roomId,
+      senderId,
+      message,
+    });
+    if (validationError) return validationError;
 
     const room = await prisma.room.findUnique({
       where: { id: roomId },
-      include: {
-        participants: { include: { participant: true } },
-      },
+      include: { participants: { include: { participant: true } } },
     });
-
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
     }
@@ -40,10 +35,7 @@ export async function POST(req: Request) {
 
       await prisma.roomParticipant.upsert({
         where: {
-          roomId_participantId: {
-            roomId,
-            participantId: agentId,
-          },
+          roomId_participantId: { roomId, participantId: agentId },
         },
         update: {},
         create: { roomId, participantId: agentId },
@@ -54,7 +46,6 @@ export async function POST(req: Request) {
 
     const newComment = await prisma.comment.create({
       data: {
-        type,
         message,
         roomId,
         senderId: computedSenderId!,
@@ -62,18 +53,13 @@ export async function POST(req: Request) {
       include: {
         sender: true,
         room: {
-          include: {
-            participants: {
-              include: { participant: true },
-            },
-          },
+          include: { participants: { include: { participant: true } } },
         },
       },
     });
 
     const response = {
       id: newComment.id,
-      type: newComment.type,
       message: newComment.message,
       sender: {
         id: newComment.sender.id,
@@ -164,7 +150,6 @@ export async function GET(req: Request) {
       },
       comments: comments.map((c) => ({
         id: c.id,
-        type: c.type,
         message: c.message,
         sender: {
           id: c.sender.id,

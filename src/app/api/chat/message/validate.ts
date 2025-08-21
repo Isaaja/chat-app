@@ -4,71 +4,54 @@ import { prisma } from "@/lib/client";
 export async function validateMessagePayload(body: {
   roomId: number;
   senderId: string;
-  message: string;
-  type: string;
+  message?: string;
 }) {
-  const { roomId, senderId, message, type } = body;
+  const { roomId, senderId, message } = body;
 
   if (!roomId || typeof roomId !== "number") {
     return NextResponse.json(
-      { error: "'roomId' is required and must be a number" },
+      { error: "'roomId' must be a number" },
       { status: 400 }
     );
   }
 
   if (!senderId || typeof senderId !== "string") {
     return NextResponse.json(
-      { error: "'senderId' is required and must be a string" },
+      { error: "'senderId' must be a string" },
       { status: 400 }
     );
   }
 
   if (!message || typeof message !== "string") {
     return NextResponse.json(
-      { error: "'message' is required and must be a string" },
+      { error: "Text messages require 'message'" },
       { status: 400 }
     );
   }
 
-  const validTypes = ["text", "image", "file", "audio", "video"];
-  if (!validTypes.includes(type)) {
-    return NextResponse.json(
-      { error: "'type' must be one of: text, image, file, audio, video" },
-      { status: 400 }
-    );
-  }
-
+  // ✅ cek room & sender
   const room = await prisma.room.findUnique({
     where: { id: roomId },
-    include: {
-      participants: {
-        include: { participant: true },
-      },
-    },
+    include: { participants: { include: { participant: true } } },
   });
 
-  if (!room) {
+  if (!room)
     return NextResponse.json({ error: "Room not found" }, { status: 404 });
-  }
 
   const isParticipant = room.participants.some(
     (p) => p.participant.id === senderId
   );
-
-  if (!isParticipant) {
+  if (!isParticipant)
     return NextResponse.json(
       { error: "Sender is not a participant in this room" },
       { status: 403 }
     );
-  }
 
   const sender = await prisma.participant.findUnique({
     where: { id: senderId },
   });
-
-  if (!sender) {
+  if (!sender)
     return NextResponse.json({ error: "Sender not found" }, { status: 404 });
-  }
 
   return null;
 }

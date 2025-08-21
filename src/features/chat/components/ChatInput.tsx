@@ -69,7 +69,7 @@ export default function ChatInput({
           },
           timestamp: new Date(created.createdAt).toISOString(),
           status: "delivered",
-          tempId: tempId, 
+          tempId: tempId,
         };
         onMessageSent?.(deliveredMessage);
       } catch (err) {

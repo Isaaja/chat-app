@@ -6,10 +6,6 @@ export default function ChatHeaderSkeleton() {
         <div className="skeleton h-4 w-28" />
         <div className="skeleton h-3 w-16" />
       </div>
-      <div className="ml-auto flex gap-2">
-        <div className="skeleton h-6 w-12" />
-        <div className="skeleton h-6 w-12" />
-      </div>
     </div>
   );
 }

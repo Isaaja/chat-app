@@ -8,8 +8,8 @@ export default function ChatSidebarSkeleton() {
       <div className="p-3">
         <div className="skeleton h-10 w-full" />
       </div>
-      <ul className="menu px-1 overflow-y-auto">
-        {Array.from({ length: 6 }).map((_, i) => (
+      <ul className="menu px-1 overflow-y-auto w-full">
+        {Array.from({ length: 8 }).map((_, i) => (
           <li key={i}>
             <div className="flex gap-3 items-center py-3 px-3">
               <div className="skeleton w-10 h-10 rounded-full" />

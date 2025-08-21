@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const validationError = validatePost(body);
     if (validationError) return validationError;
 
-    const { receiverId, message, type = "text" } = body;
+    const { receiverId, message } = body;
 
     const receiver = await prisma.participant.findUnique({
       where: { id: receiverId },
@@ -62,7 +62,6 @@ export async function POST(req: Request) {
 
     const newComment = await prisma.comment.create({
       data: {
-        type,
         message,
         roomId: personalRoom.id,
         senderId: AGENT_ID,
@@ -76,7 +75,6 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         id: newComment.id,
-        type: newComment.type,
         message: newComment.message,
         sender: {
           id: newComment.sender.id,
@@ -162,7 +160,6 @@ export async function GET(req: Request) {
       },
       comments: comments.map((c) => ({
         id: c.id,
-        type: c.type,
         message: c.message,
         sender: {
           id: c.sender.id,

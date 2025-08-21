@@ -83,7 +83,6 @@ export async function POST(req: Request) {
       },
       comments: created.comments.map((c) => ({
         id: c.id,
-        type: c.type,
         message: c.message,
         sender: c.sender?.id,
       })),
