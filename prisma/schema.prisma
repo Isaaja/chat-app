@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Room {
-  id           Int               @id @default(autoincrement()) 
+  id           Int               @id @default(autoincrement())
   name         String
   imageUrl     String?
   comments     Comment[]
@@ -27,7 +27,6 @@ model Participant {
 model RoomParticipant {
   roomId        Int
   participantId String
-
   participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
   room          Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
@@ -35,23 +34,22 @@ model RoomParticipant {
 }
 
 model Comment {
-  id          Int         @id @default(autoincrement())
-  message     String?     
-  attachments Attachment[] 
+  id          Int          @id @default(autoincrement())
+  message     String?
   roomId      Int
   senderId    String
-  createdAt   DateTime    @default(now())
-
-  room        Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  sender      Participant @relation("ParticipantComments", fields: [senderId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  attachments Attachment[]
+  room        Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender      Participant  @relation("ParticipantComments", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 model Attachment {
-  id         Int         @id @default(autoincrement())
-  type       AttachmentType
-  url        String      
-  commentId  Int
-  comment    Comment     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  id        Int            @id @default(autoincrement())
+  type      AttachmentType
+  url       String
+  commentId Int
+  comment   Comment        @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
 
 enum AttachmentType {
