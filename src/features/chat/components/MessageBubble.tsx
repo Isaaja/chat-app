@@ -56,7 +56,7 @@ export default function MessageBubble({
             minute: "2-digit",
           })}
           {"status" in comment && (
-            <span className="text-xs ml-2">
+            <span className="text-xs">
               {comment.status === "pending" && "⏳"}
               {comment.status === "delivered" && null}
               {comment.status === "failed" && "❌"}
