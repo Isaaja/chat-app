@@ -15,13 +15,59 @@ export async function POST(req: Request) {
       );
     }
 
+    // Agent A constants
+    const AGENT_ID = "agent@mail.com";
+    const AGENT_NAME = "Agent A";
+    const AGENT_ROLE = 1;
+
+    // Upsert the new participant
     const participant = await prisma.participant.upsert({
       where: { id },
       update: { name, role },
       create: { id, name, role: 2 },
     });
 
-    return NextResponse.json(participant, { status: 201 });
+    // Ensure Agent A exists
+    await prisma.participant.upsert({
+      where: { id: AGENT_ID },
+      update: { name: AGENT_NAME, role: AGENT_ROLE },
+      create: { id: AGENT_ID, name: AGENT_NAME, role: AGENT_ROLE },
+    });
+
+    const personalRoom = await prisma.room.create({
+      data: {
+        name: participant.name,
+        imageUrl: null,
+        participants: {
+          create: [
+            { participantId: AGENT_ID },
+            { participantId: participant.id },
+          ],
+        },
+      },
+      include: {
+        participants: {
+          include: { participant: true },
+        },
+      },
+    });
+
+    return NextResponse.json(
+      {
+        participant,
+        room: {
+          id: personalRoom.id,
+          name: participant.name,
+          image_url: personalRoom.imageUrl,
+          participant: personalRoom.participants.map((p) => ({
+            id: p.participant.id,
+            name: p.participant.name,
+            role: p.participant.role,
+          })),
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
