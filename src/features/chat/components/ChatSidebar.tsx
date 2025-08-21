@@ -13,6 +13,7 @@ type ChatSidebarProps = {
   activeChatId?: string;
   onSelectChat: (chatId: string) => void;
   participants?: Participant[];
+  onRefresh?: () => void;
 };
 
 export default function ChatSidebar({
@@ -20,6 +21,7 @@ export default function ChatSidebar({
   activeChatId,
   onSelectChat,
   participants,
+  onRefresh,
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -36,7 +38,11 @@ export default function ChatSidebar({
           <summary className="btn btn-ghost rounded-xl p-2">
             <SquarePen className="w-6 h-6" />
           </summary>
-          <NewChatMenu isOpen={isOpen} participants={participants} />
+          <NewChatMenu
+            isOpen={isOpen}
+            participants={participants}
+            onCreated={onRefresh}
+          />
         </details>
       </div>
 

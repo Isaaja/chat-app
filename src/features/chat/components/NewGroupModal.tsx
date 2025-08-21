@@ -88,7 +88,6 @@ export default function NewGroupModal({
   function handleClose() {
     onClose();
     setTimeout(() => {
-      // reset state after animation
       setStep(1);
       setSelected([]);
       setGroupName("");

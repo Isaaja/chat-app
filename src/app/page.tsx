@@ -48,6 +48,25 @@ export default function Page() {
     };
   }, []);
 
+  // Refetch helper (GET API ulang) ketika participant atau group ditambahkan
+  async function refetchAll() {
+    try {
+      setLoading(true);
+      const [chatRes, participantsRes] = await Promise.all([
+        fetchChatData(),
+        fetchParticipants(),
+      ]);
+      setChats(chatRes.chats);
+      setMessages(chatRes.messages);
+      setParticipants(participantsRes);
+      if (chatRes.activeChatId) setActiveChatId(chatRes.activeChatId);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed refreshing data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     const update = () => {
       const desktop =
@@ -70,30 +89,22 @@ export default function Page() {
     return activeChat.comments;
   }, [activeChat]);
 
+  // Agent A (me) = participant dengan role = 1
+  const myId = useMemo(() => {
+    return activeChat?.room.participant.find((p) => p.role === 1)?.id;
+  }, [activeChat]);
+
   function handleSelectChat(chatId: string) {
     setActiveChatId(chatId);
     if (!isDesktop) setShowSidebarMobile(false);
   }
 
-  function handleSend(text: string) {
+  function handleMessageSentFromChild(message: Comment) {
     if (!activeChatId || !activeChat) return;
-    const newMessage: Comment = {
-      id: crypto.randomUUID(),
-      type: "text",
-      message: text,
-      sender: {
-        id: "me",
-        name: "Me",
-        avatar: undefined,
-      },
-      timestamp: new Date().toISOString(),
-    };
-
-    // Update the active chat's comments
     setChats((prevChats) =>
       prevChats.map((chat) =>
         String(chat.room.id) === activeChatId
-          ? { ...chat, comments: [...chat.comments, newMessage] }
+          ? { ...chat, comments: [...chat.comments, message] }
           : chat
       )
     );
@@ -114,6 +125,7 @@ export default function Page() {
             activeChatId={activeChatId}
             onSelectChat={handleSelectChat}
             participants={participants}
+            onRefresh={refetchAll}
           />
         ))}
       {(isDesktop || !showSidebarMobile) && (
@@ -133,9 +145,23 @@ export default function Page() {
               {error}
             </div>
           ) : (
-            <ChatThread messages={visibleMessages} />
+            <ChatThread
+              messages={visibleMessages}
+              myId={myId}
+              isPersonal={
+                !!activeChat &&
+                ((typeof activeChat.room.name === "string" &&
+                  activeChat.room.name.startsWith("Personal:")) ||
+                  activeChat.room.participant.filter((p) => p.role !== 1)
+                    .length === 1)
+              }
+            />
           )}
-          <ChatInput onSend={handleSend} onUpload={handleUpload} />
+          <ChatInput
+            onMessageSent={handleMessageSentFromChild}
+            onUpload={handleUpload}
+            roomId={activeChat ? Number(activeChat.room.id) : undefined}
+          />
         </main>
       )}
     </div>

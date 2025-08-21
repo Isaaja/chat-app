@@ -29,22 +29,6 @@ export default function ContactInfo({ contact }: ContactInfoProps) {
           {participant?.role === 1 ? "You" : "Contact"}
         </p>
       </div>
-
-      {/* Stats */}
-      <div className="stats stats-horizontal shadow">
-        <div className="stat">
-          <div className="stat-title">Messages</div>
-          <div className="stat-value text-primary">
-            {contact.comments.length}
-          </div>
-        </div>
-        <div className="stat">
-          <div className="stat-title">Participants</div>
-          <div className="stat-value text-secondary">
-            {contact.room.participant.length}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

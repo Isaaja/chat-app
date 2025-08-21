@@ -1,35 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
+import { validateGroupPayload } from "./validate";
+
+const AGENT_ID = "agent@mail.com";
+const AGENT_NAME = "Agent A";
+const AGENT_ROLE = 1;
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, imageUrl, participants } = body ?? {};
 
-    if (!name || typeof name !== "string") {
-      return NextResponse.json(
-        { error: "'name' is required" },
-        { status: 400 }
-      );
-    }
+    const errorResponse = await validateGroupPayload(body);
+    if (errorResponse) return errorResponse;
+
+    const { name, imageUrl, participants } = body;
 
     const room = await prisma.room.create({
       data: { name, imageUrl: imageUrl ?? null },
     });
 
-    if (Array.isArray(participants) && participants.length > 0)
+    if (Array.isArray(participants) && participants.length > 0) {
       for (const p of participants) {
-        if (!p || typeof p !== "object") continue;
-        const {
-          id,
-          name: participantName,
-          role,
-        } = p as {
-          id?: string;
-          name?: string;
-          role?: number;
-        };
-        if (!id || !participantName || typeof role !== "number") continue;
+        const { id, name: participantName, role } = p;
 
         await prisma.participant.upsert({
           where: { id },
@@ -48,6 +40,20 @@ export async function POST(req: Request) {
           create: { roomId: room.id, participantId: id },
         });
       }
+    }
+
+    await prisma.participant.upsert({
+      where: { id: AGENT_ID },
+      update: { name: AGENT_NAME, role: AGENT_ROLE },
+      create: { id: AGENT_ID, name: AGENT_NAME, role: AGENT_ROLE },
+    });
+    await prisma.roomParticipant.upsert({
+      where: {
+        roomId_participantId: { roomId: room.id, participantId: AGENT_ID },
+      },
+      update: {},
+      create: { roomId: room.id, participantId: AGENT_ID },
+    });
 
     const created = await prisma.room.findUnique({
       where: { id: room.id },

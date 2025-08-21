@@ -14,7 +14,8 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
       displayName: p.role === 1 ? "You" : p.name,
     })) ?? [];
 
-  const me = participants.find((p) => p.role === 2);
+  // Anggap Agent A = role 1 sebagai saya
+  const me = participants.find((p) => p.role === 1);
   const otherParticipants = participants.filter((p) => p.id !== me?.id);
 
   const { isOpen, openContactDetail, closeContactDetail } = useContactDetail();

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/client";
 
+const AGENT_ID = "agent@mail.com";
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
     const participant = await prisma.participant.upsert({
       where: { id },
       update: { name, role },
-      create: { id, name, role },
+      create: { id, name, role: 2 },
     });
 
     return NextResponse.json(participant, { status: 201 });
@@ -32,6 +34,7 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const participants = await prisma.participant.findMany({
+      where: { id: { not: AGENT_ID } },
       orderBy: { name: "asc" },
     });
     return NextResponse.json(participants);

@@ -24,7 +24,7 @@ export interface Comment {
   type: string;
   message: string;
   sender: Sender;
-  timestamp?: string; // kalau ada
+  timestamp?: string;
 }
 
 export interface Result {
@@ -37,3 +37,16 @@ export interface ApiResponse {
   room?: Room;
   comments?: Comment[];
 }
+
+export type ChatComment = {
+  id: string;
+  type: "text" | "image" | "file" | "audio" | "video";
+  message: string;
+  sender: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  timestamp: string;
+  status: "pending" | "delivered" | "failed";
+};

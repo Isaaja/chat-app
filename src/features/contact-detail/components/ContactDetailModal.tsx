@@ -34,7 +34,6 @@ export default function ContactDetailModal({
             contact={contact}
             onAction={(action) => {
               console.log("Action:", action);
-              // Handle actions like block, delete, etc.
             }}
           />
         </div>

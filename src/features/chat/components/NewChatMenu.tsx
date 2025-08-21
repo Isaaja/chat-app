@@ -10,9 +10,14 @@ import type { Participant } from "../types";
 type Props = {
   isOpen: boolean;
   participants?: Participant[];
+  onCreated?: () => void;
 };
 
-export default function NewChatMenu({ isOpen, participants }: Props) {
+export default function NewChatMenu({
+  isOpen,
+  participants,
+  onCreated,
+}: Props) {
   const [openGroup, setOpenGroup] = useState(false);
   const [openContact, setOpenContact] = useState(false);
 
@@ -58,12 +63,14 @@ export default function NewChatMenu({ isOpen, participants }: Props) {
       <NewGroupModal
         open={openGroup}
         onClose={() => setOpenGroup(false)}
+        onCreated={onCreated}
         participants={participants}
         key="new-group-modal"
       />
       <NewContactModal
         open={openContact}
         onClose={() => setOpenContact(false)}
+        onCreated={onCreated}
         key="new-contact-modal"
       />
     </AnimatePresence>

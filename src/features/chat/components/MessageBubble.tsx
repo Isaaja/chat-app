@@ -3,21 +3,30 @@ import DefaultAvatar from "../common/DefaultAvatar";
 
 type MessageBubbleProps = {
   comment: Comment;
+  myId?: string;
+  hideSenderInfo?: boolean;
 };
 
-export default function MessageBubble({ comment }: MessageBubbleProps) {
-  const isMine = comment.sender.id === "me" || comment.sender.name === "Me";
+export default function MessageBubble({
+  comment,
+  myId,
+  hideSenderInfo,
+}: MessageBubbleProps) {
+  const isMine =
+    (myId && comment.sender.id === myId) ||
+    comment.sender.id === "me" ||
+    comment.sender.name === "Me";
   const position = isMine ? "chat-end" : "chat-start";
 
   return (
     <div className={`chat ${position}`}>
-      {!isMine && (
+      {!isMine && !hideSenderInfo && (
         <div className="chat-image">
           <DefaultAvatar name={comment.sender.name} />
         </div>
       )}
 
-      {!isMine && (
+      {!isMine && !hideSenderInfo && (
         <div className="chat-header">
           <span className="text-xs opacity-70">{comment.sender.name}</span>
         </div>

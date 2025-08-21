@@ -6,28 +6,65 @@ import {
   Image as ImageIcon,
   FileText,
 } from "lucide-react";
+import { sendMessage } from "@/services/chat";
+import type { Comment as ChatComment } from "@/features/chat/types";
+
 
 type ChatInputProps = {
-  onSend: (text: string) => void;
-  onUpload: (file: File) => void; // callback untuk file upload
+  onMessageSent?: (message: ChatComment) => void;
+  onUpload: (file: File) => void;
+  roomId?: number;
 };
 
-export default function ChatInput({ onSend, onUpload }: ChatInputProps) {
+export default function ChatInput({
+  onMessageSent,
+  onUpload,
+  roomId,
+}: ChatInputProps) {
   const [text, setText] = useState("");
   const [showOptions, setShowOptions] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = text.trim();
     if (!trimmed) return;
-    onSend(trimmed);
-    setText("");
+    if (!roomId) return;
+
+    (async () => {
+      try {
+        setSubmitting(true);
+        const created = await sendMessage({
+          roomId,
+          message: trimmed,
+          type: "text",
+        });
+
+        const comment: ChatComment = {
+          id: created.id,
+          type: created.type,
+          message: created.message,
+          sender: {
+            id: created.sender.id,
+            name: created.sender.name,
+            avatar: undefined,
+          },
+          timestamp: new Date(created.createdAt).toISOString(),
+        };
+        onMessageSent?.(comment);
+        setText("");
+      } catch (err) {
+        console.error("Failed to send message:", err);
+      } finally {
+        setSubmitting(false);
+      }
+    })();
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) onUpload(file);
-    e.target.value = ""; // reset input
+    e.target.value = "";
     setShowOptions(false);
   }
 
@@ -36,7 +73,6 @@ export default function ChatInput({ onSend, onUpload }: ChatInputProps) {
       onSubmit={handleSubmit}
       className="border-t border-black p-3 flex items-end gap-2 bg-base-300 text-white relative"
     >
-      {/* Tombol opsi upload */}
       <div className="relative h-10 rounded-xl flex items-center justify-center">
         <button
           type="button"
@@ -47,7 +83,6 @@ export default function ChatInput({ onSend, onUpload }: ChatInputProps) {
           <Link className="w-5 h-5" />
         </button>
 
-        {/* Dropdown opsi upload */}
         {showOptions && (
           <div className="absolute bottom-10 left-0 bg-base-200 text-white  shadow-lg rounded-md flex flex-col w-40 p-2 gap-2 z-10">
             <label className="flex items-center gap-2 cursor-pointer hover:bg-base-100">
@@ -74,7 +109,6 @@ export default function ChatInput({ onSend, onUpload }: ChatInputProps) {
         )}
       </div>
 
-      {/* Input teks */}
       <input
         type="text"
         placeholder="Type a message"
@@ -90,11 +124,10 @@ export default function ChatInput({ onSend, onUpload }: ChatInputProps) {
         aria-label="Message input"
       />
 
-      {/* Tombol kirim */}
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={!text.trim()}
+        disabled={!text.trim() || submitting || !roomId}
         aria-label="Send message"
       >
         <SendHorizonal />
