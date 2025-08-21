@@ -101,12 +101,25 @@ export default function Page() {
 
   function handleMessageSentFromChild(message: Comment | ChatComment) {
     if (!activeChatId || !activeChat) return;
+
     setChats((prevChats) =>
-      prevChats.map((chat) =>
-        String(chat.room.id) === activeChatId
-          ? { ...chat, comments: [...chat.comments, message] }
-          : chat
-      )
+      prevChats.map((chat) => {
+        if (String(chat.room.id) !== activeChatId) return chat;
+
+        // If message has tempId, replace the pending message
+        if ("tempId" in message && message.tempId) {
+          const updatedComments = chat.comments.map((comment) => {
+            if ("id" in comment && comment.id === message.tempId) {
+              return message; // Replace pending with delivered/failed
+            }
+            return comment;
+          });
+          return { ...chat, comments: updatedComments };
+        }
+
+        // Otherwise, add new message (for pending messages)
+        return { ...chat, comments: [...chat.comments, message] };
+      })
     );
   }
 

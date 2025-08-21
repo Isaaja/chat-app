@@ -30,19 +30,26 @@ export default function ChatInput({
     if (!trimmed) return;
     if (!roomId) return;
 
+    // Clear input immediately for better UX
+    setText("");
+
+    // Generate temporary ID for message tracking
+    const tempId = crypto.randomUUID();
+
+    // Show optimistic pending message
+    const pendingMessage: ChatComment = {
+      id: tempId,
+      type: "text",
+      message: trimmed,
+      sender: { id: "me", name: "Me", avatar: undefined },
+      timestamp: new Date().toISOString(),
+      status: "pending",
+    };
+    onMessageSent?.(pendingMessage);
+
     (async () => {
       try {
         setSubmitting(true);
-        // optimistic pending message
-        const pending: ChatComment = {
-          id: crypto.randomUUID(),
-          type: "text",
-          message: trimmed,
-          sender: { id: "me", name: "Me", avatar: undefined },
-          timestamp: new Date().toISOString(),
-          status: "pending",
-        };
-        onMessageSent?.(pending);
 
         const created = await sendMessage({
           roomId,
@@ -50,7 +57,8 @@ export default function ChatInput({
           type: "text",
         });
 
-        const delivered: ChatComment = {
+        // Update to delivered status with real server data
+        const deliveredMessage: ChatComment = {
           id: String(created.id),
           type: created.type as ChatComment["type"],
           message: created.message,
@@ -61,11 +69,17 @@ export default function ChatInput({
           },
           timestamp: new Date(created.createdAt).toISOString(),
           status: "delivered",
+          tempId: tempId, 
         };
-        onMessageSent?.(delivered);
-        setText("");
+        onMessageSent?.(deliveredMessage);
       } catch (err) {
         console.error("Failed to send message:", err);
+
+        const failedMessage: ChatComment = {
+          ...pendingMessage,
+          status: "failed",
+        };
+        onMessageSent?.(failedMessage);
       } finally {
         setSubmitting(false);
       }

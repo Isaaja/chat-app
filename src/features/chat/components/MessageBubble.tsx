@@ -35,9 +35,18 @@ export default function MessageBubble({
       <div
         className={`chat-bubble ${
           isMine ? "bg-primary text-primary-content" : ""
+        } ${
+          "status" in comment && comment.status === "pending"
+            ? "opacity-70"
+            : "status" in comment && comment.status === "failed"
+            ? "border border-red-500 bg-red-100"
+            : ""
         }`}
       >
         {comment.message}
+        {"status" in comment && comment.status === "failed" && (
+          <div className="text-xs text-red-600 mt-1">Failed to send</div>
+        )}
       </div>
 
       {comment.timestamp ? (
@@ -46,6 +55,13 @@ export default function MessageBubble({
             hour: "2-digit",
             minute: "2-digit",
           })}
+          {"status" in comment && (
+            <span className="text-xs ml-2">
+              {comment.status === "pending" && "⏳"}
+              {comment.status === "delivered" && null}
+              {comment.status === "failed" && "❌"}
+            </span>
+          )}
         </div>
       ) : null}
     </div>
