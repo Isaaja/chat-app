@@ -48,7 +48,6 @@ export default function Page() {
     };
   }, []);
 
-  // Refetch helper (GET API ulang) ketika participant atau group ditambahkan
   async function refetchAll() {
     try {
       setLoading(true);
@@ -128,21 +127,23 @@ export default function Page() {
   }
 
   return (
-    <div className="w-full h-dvh flex bg-base">
+    <div className="w-full h-dvh flex bg-base overflow-hidden ">
       {(isDesktop || showSidebarMobile) &&
         (loading ? (
           <ChatSidebarSkeleton />
         ) : (
-          <ChatSidebar
-            chats={chats}
-            activeChatId={activeChatId}
-            onSelectChat={handleSelectChat}
-            participants={participants}
-            onRefresh={refetchAll}
-          />
+          <div className="w-full md:w-1/3 xl:w-1/4">
+            <ChatSidebar
+              chats={chats}
+              activeChatId={activeChatId}
+              onSelectChat={handleSelectChat}
+              participants={participants}
+              onRefresh={refetchAll}
+            />
+          </div>
         ))}
       {(isDesktop || !showSidebarMobile) && (
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
           {loading ? (
             <ChatHeaderSkeleton />
           ) : (
@@ -170,11 +171,13 @@ export default function Page() {
               }
             />
           )}
-          <ChatInput
-            onMessageSent={handleMessageSentFromChild}
-            onUpload={handleUpload}
-            roomId={activeChat ? Number(activeChat.room.id) : undefined}
-          />
+          <div className="flex-shrink-0">
+            <ChatInput
+              onMessageSent={handleMessageSentFromChild}
+              onUpload={handleUpload}
+              roomId={activeChat ? Number(activeChat.room.id) : undefined}
+            />
+          </div>
         </main>
       )}
     </div>

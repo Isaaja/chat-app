@@ -70,9 +70,9 @@ export default function ChatSidebar({
   }, [chats, query, participants]);
 
   return (
-    <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col">
+    <div className="bg-base-300 border-r border-black w-full flex flex-col h-screen">
       {/* Header */}
-      <div className="p-4 border-b border-base-300 flex items-center gap-2 justify-between">
+      <div className="p-4 border-b border-base-300 flex items-center gap-2 justify-between flex-shrink-0">
         <span className="font-bold text-xl">Chats</span>
         <details
           className="dropdown dropdown-end md:dropdown-center"
@@ -91,117 +91,106 @@ export default function ChatSidebar({
       </div>
 
       {/* Search */}
-      <SearchInput query={query} setQuery={setQuery} />
+      <div className="flex-shrink-0">
+        <SearchInput query={query} setQuery={setQuery} />
+      </div>
 
-      {/* Chat List */}
-      <ul className="menu px-1 overflow-y-auto flex-1 w-full">
-        {/* Existing Chats */}
-        {filteredResults.chats.map((chat) => {
-          const chatId = String(chat.room.id);
-          const isActive = chatId === activeChatId;
-          const lastMessage = chat.comments[chat.comments.length - 1];
+      {/* Chat List Container */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <ul className="menu px-1 w-full min-w-0">
+          {/* Existing Chats */}
+          {filteredResults.chats.map((chat) => {
+            const chatId = String(chat.room.id);
+            const isActive = chatId === activeChatId;
+            const lastMessage = chat.comments[chat.comments.length - 1];
 
-          return (
-            <li key={chatId} className="w-full">
-              <button
-                className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200 ${
-                  isActive ? "bg-base-100" : ""
-                }`}
-                onClick={() => onSelectChat(chatId)}
-              >
-                {/* Avatar */}
-                <div className="avatar avatar-offline flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
-                    {chat.room.image_url ? (
-                      <Image
-                        src={chat.room.image_url}
-                        alt={chat.room.name}
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      <DefaultAvatar name={chat.room.name} />
-                    )}
-                  </div>
-                </div>
-
-                {/* Chat Info */}
-                <div className="flex-1 min-w-0">
-                  {/* Name + Time */}
-                  <div className="flex items-center gap-2 w-full">
-                    <span className="font-medium truncate flex-1">
-                      {chat.room.name}
-                    </span>
-                    <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
-                      {lastMessage?.timestamp
-                        ? new Date(lastMessage.timestamp).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )
-                        : ""}
-                    </span>
-                  </div>
-
-                  {/* Last Message + Unread */}
-                  <div className="text-sm opacity-70 flex items-center gap-2 w-full">
-                    <span className="truncate flex-1 min-w-0">
-                      {lastMessage?.message ?? ""}
-                    </span>
-                  </div>
-                </div>
-              </button>
-            </li>
-          );
-        })}
-
-        {/* Available Participants for New Personal Chat */}
-        {query && filteredResults.participants.length > 0 && (
-          <>
-            <li className="px-3 py-2">
-              <span className="text-xs font-semibold opacity-70 uppercase tracking-wide">
-                Start new chat
-              </span>
-            </li>
-            {filteredResults.participants.map((participant) => (
-              <li key={`new-${participant.id}`} className="w-full">
+            return (
+              <li key={chatId} className="w-full">
                 <button
-                  className="flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200"
-                  onClick={() => {
-                    // TODO: Implement personal chat creation
-                    console.log("Start personal chat with:", participant);
-                  }}
+                  className={`flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200 ${
+                    isActive ? "bg-base-100" : ""
+                  }`}
+                  onClick={() => onSelectChat(chatId)}
                 >
                   {/* Avatar */}
                   <div className="avatar avatar-offline flex-shrink-0">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
-                      <DefaultAvatar name={participant.name} />
+                      {chat.room.image_url ? (
+                        <Image
+                          src={chat.room.image_url}
+                          alt={chat.room.name}
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover"
+                        />
+                      ) : (
+                        <DefaultAvatar name={chat.room.name} />
+                      )}
                     </div>
                   </div>
 
-                  {/* Participant Info */}
+                  {/* Chat Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 w-full">
                       <span className="font-medium truncate flex-1">
-                        {participant.name}
+                        {chat.room.name}
                       </span>
                       <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
-                        New
+                        {lastMessage?.timestamp
+                          ? new Date(lastMessage.timestamp).toLocaleTimeString(
+                              [],
+                              { hour: "2-digit", minute: "2-digit" }
+                            )
+                          : ""}
                       </span>
                     </div>
-                    <div className="text-sm opacity-70">
-                      Start a conversation
+                    <div className="text-sm opacity-70 flex items-center gap-2 w-full">
+                      <span className="truncate flex-1 min-w-0">
+                        {lastMessage?.message ?? ""}
+                      </span>
                     </div>
                   </div>
                 </button>
               </li>
-            ))}
-          </>
-        )}
-      </ul>
+            );
+          })}
+
+          {/* Available Participants */}
+          {query && filteredResults.participants.length > 0 && (
+            <>
+              {filteredResults.participants.map((participant) => (
+                <li key={`new-${participant.id}`} className="w-full">
+                  <button
+                    className="flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200"
+                    onClick={() => {
+                      console.log("Start personal chat with:", participant);
+                    }}
+                  >
+                    <div className="avatar avatar-offline flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
+                        <DefaultAvatar name={participant.name} />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 w-full">
+                        <span className="font-medium truncate flex-1">
+                          {participant.name}
+                        </span>
+                        <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
+                          New
+                        </span>
+                      </div>
+                      <div className="text-sm opacity-70">
+                        Start a conversation
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }

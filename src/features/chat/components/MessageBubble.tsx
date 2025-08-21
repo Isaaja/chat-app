@@ -19,7 +19,7 @@ export default function MessageBubble({
   const position = isMine ? "chat-end" : "chat-start";
 
   return (
-    <div className={`chat ${position}`}>
+    <div className={`chat ${position} max-w-full`}>
       {!isMine && !hideSenderInfo && (
         <div className="chat-image">
           <DefaultAvatar name={comment.sender.name} />
@@ -33,7 +33,7 @@ export default function MessageBubble({
       )}
 
       <div
-        className={`chat-bubble ${
+        className={`chat-bubble break-words max-w-xs md:max-w-md ${
           isMine ? "bg-primary text-primary-content" : ""
         } ${
           "status" in comment && comment.status === "pending"

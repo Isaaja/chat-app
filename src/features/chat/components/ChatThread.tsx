@@ -24,7 +24,7 @@ export default function ChatThread({
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-base-100">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 space-y-2 bg-base-100 min-w-0">
       {messages.map((comment) => (
         <MessageBubble
           key={comment.id}

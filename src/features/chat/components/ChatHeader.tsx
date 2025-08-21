@@ -14,9 +14,11 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
       displayName: p.role === 1 ? "You" : p.name,
     })) ?? [];
 
-  // Anggap Agent A = role 1 sebagai saya
   const me = participants.find((p) => p.role === 1);
   const otherParticipants = participants.filter((p) => p.id !== me?.id);
+
+  const isPersonalChat =
+    participants.length === 2 && participants.some((p) => p.role === 1);
 
   const { isOpen, openContactDetail, closeContactDetail } = useContactDetail();
 
@@ -61,8 +63,11 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
         >
           <span className="font-medium">{chat?.room.name ?? "Pilih chat"}</span>
           <span className="text-xs opacity-70">
-            {otherParticipants.map((p) => p.displayName).join(", ")}
-            {me?.displayName ? `, ${me?.displayName}` : ""}
+            {isPersonalChat
+              ? "Select info for more detail"
+              : `${otherParticipants.map((p) => p.displayName).join(", ")}${
+                  me?.displayName ? `, ${me?.displayName}` : ""
+                }`}
           </span>
         </div>
       </div>
