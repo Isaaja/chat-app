@@ -1,8 +1,8 @@
-import { Comment } from "../types";
+import { Comment, ChatComment } from "../types";
 import DefaultAvatar from "../common/DefaultAvatar";
 
 type MessageBubbleProps = {
-  comment: Comment;
+  comment: Comment | ChatComment;
   myId?: string;
   hideSenderInfo?: boolean;
 };

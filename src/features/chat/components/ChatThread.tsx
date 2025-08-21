@@ -1,8 +1,9 @@
-import { Comment } from "../types";
+import { Comment, ChatComment } from "../types";
 import MessageBubble from "./MessageBubble";
+import { useEffect, useRef } from "react";
 
 type ChatThreadProps = {
-  messages: Comment[];
+  messages: Array<Comment | ChatComment>;
   myId?: string;
   isPersonal: boolean;
 };
@@ -12,6 +13,16 @@ export default function ChatThread({
   myId,
   isPersonal,
 }: ChatThreadProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-base-100">
       {messages.map((comment) => (
@@ -22,6 +33,7 @@ export default function ChatThread({
           hideSenderInfo={isPersonal}
         />
       ))}
+      <div ref={messagesEndRef} />
     </div>
   );
 }

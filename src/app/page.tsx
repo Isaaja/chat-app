@@ -7,14 +7,14 @@ import ChatInput from "@/features/chat/components/ChatInput";
 import ChatSidebarSkeleton from "@/features/chat/skeletons/ChatSidebarSkeleton";
 import ChatHeaderSkeleton from "@/features/chat/skeletons/ChatHeaderSkeleton";
 import ChatThreadSkeleton from "@/features/chat/skeletons/ChatThreadSkeleton";
-import type { Result, Comment } from "@/features/chat/types";
+import type { Result, Comment, ChatComment } from "@/features/chat/types";
 import { fetchChatData, fetchParticipants } from "@/services/chat";
 import type { Participant } from "@/features/chat/types";
 
 export default function Page() {
   const [chats, setChats] = useState<Result[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | undefined>();
-  const [messages, setMessages] = useState<Comment[]>([]);
+  const [messages, setMessages] = useState<Array<Comment | ChatComment>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [isDesktop, setIsDesktop] = useState(false);
@@ -99,7 +99,7 @@ export default function Page() {
     if (!isDesktop) setShowSidebarMobile(false);
   }
 
-  function handleMessageSentFromChild(message: Comment) {
+  function handleMessageSentFromChild(message: Comment | ChatComment) {
     if (!activeChatId || !activeChat) return;
     setChats((prevChats) =>
       prevChats.map((chat) =>

@@ -6,14 +6,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { roomId, senderId, message, type = "text" } = body ?? {};
-
-    const validationError = await validateMessagePayload({
-      roomId,
-      senderId,
-      message,
-      type,
-    });
-    if (validationError) return validationError;
+    if (senderId) {
+      const validationError = await validateMessagePayload({
+        roomId,
+        senderId,
+        message,
+        type,
+      });
+      if (validationError) return validationError;
+    }
 
     const room = await prisma.room.findUnique({
       where: { id: roomId },

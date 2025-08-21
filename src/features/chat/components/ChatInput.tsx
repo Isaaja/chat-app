@@ -7,8 +7,7 @@ import {
   FileText,
 } from "lucide-react";
 import { sendMessage } from "@/services/chat";
-import type { Comment as ChatComment } from "@/features/chat/types";
-
+import type { ChatComment } from "@/features/chat/types";
 
 type ChatInputProps = {
   onMessageSent?: (message: ChatComment) => void;
@@ -34,15 +33,26 @@ export default function ChatInput({
     (async () => {
       try {
         setSubmitting(true);
+        // optimistic pending message
+        const pending: ChatComment = {
+          id: crypto.randomUUID(),
+          type: "text",
+          message: trimmed,
+          sender: { id: "me", name: "Me", avatar: undefined },
+          timestamp: new Date().toISOString(),
+          status: "pending",
+        };
+        onMessageSent?.(pending);
+
         const created = await sendMessage({
           roomId,
           message: trimmed,
           type: "text",
         });
 
-        const comment: ChatComment = {
-          id: created.id,
-          type: created.type,
+        const delivered: ChatComment = {
+          id: String(created.id),
+          type: created.type as ChatComment["type"],
           message: created.message,
           sender: {
             id: created.sender.id,
@@ -50,8 +60,9 @@ export default function ChatInput({
             avatar: undefined,
           },
           timestamp: new Date(created.createdAt).toISOString(),
+          status: "delivered",
         };
-        onMessageSent?.(comment);
+        onMessageSent?.(delivered);
         setText("");
       } catch (err) {
         console.error("Failed to send message:", err);
@@ -118,6 +129,9 @@ export default function ChatInput({
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
+            const trimmed = text.trim();
+            if (!trimmed) return;
+            setText("");
             handleSubmit(e as unknown as React.FormEvent);
           }
         }}
