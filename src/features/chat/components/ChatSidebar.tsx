@@ -4,7 +4,7 @@ import Image from "next/image";
 import { SquarePen } from "lucide-react";
 import NewChatMenu from "./NewChatMenu";
 import type { Participant } from "../types";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SearchInput from "../common/SearchInput";
 import DefaultAvatar from "../common/DefaultAvatar";
 
@@ -25,6 +25,50 @@ export default function ChatSidebar({
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  // Combine chats and participants for search
+  const filteredResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    // If no query, return existing chats only
+    if (!q) return { chats, participants: [] };
+
+    // Filter existing chats
+    const filteredChats = chats.filter((chat) => {
+      // Search by room name
+      const roomNameMatch = chat.room.name.toLowerCase().includes(q);
+
+      // Search by participant names in the room
+      const participantMatch = chat.room.participant.some(
+        (p) =>
+          p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
+      );
+
+      // Search by last message content
+      const lastMessage = chat.comments[chat.comments.length - 1];
+      const messageMatch =
+        lastMessage?.message?.toLowerCase().includes(q) || false;
+
+      return roomNameMatch || participantMatch || messageMatch;
+    });
+
+    // Filter all participants from database for personal chat creation
+    const filteredParticipants =
+      participants?.filter((participant) => {
+        const nameMatch = participant.name.toLowerCase().includes(q);
+        const idMatch = participant.id.toLowerCase().includes(q);
+
+        // Check if this participant already has a chat room
+        const hasExistingChat = chats.some((chat) =>
+          chat.room.participant.some((p) => p.id === participant.id)
+        );
+
+        return (nameMatch || idMatch) && !hasExistingChat;
+      }) || [];
+
+    return { chats: filteredChats, participants: filteredParticipants };
+  }, [chats, query, participants]);
+
   return (
     <div className="bg-base-300 border-r border-black w-full md:w-1/3 xl:w-1/4 flex flex-col">
       {/* Header */}
@@ -51,7 +95,8 @@ export default function ChatSidebar({
 
       {/* Chat List */}
       <ul className="menu px-1 overflow-y-auto flex-1 w-full">
-        {chats.map((chat) => {
+        {/* Existing Chats */}
+        {filteredResults.chats.map((chat) => {
           const chatId = String(chat.room.id);
           const isActive = chatId === activeChatId;
           const lastMessage = chat.comments[chat.comments.length - 1];
@@ -112,6 +157,50 @@ export default function ChatSidebar({
             </li>
           );
         })}
+
+        {/* Available Participants for New Personal Chat */}
+        {query && filteredResults.participants.length > 0 && (
+          <>
+            <li className="px-3 py-2">
+              <span className="text-xs font-semibold opacity-70 uppercase tracking-wide">
+                Start new chat
+              </span>
+            </li>
+            {filteredResults.participants.map((participant) => (
+              <li key={`new-${participant.id}`} className="w-full">
+                <button
+                  className="flex gap-3 items-center py-3 px-3 rounded-lg w-full hover:bg-base-200"
+                  onClick={() => {
+                    // TODO: Implement personal chat creation
+                    console.log("Start personal chat with:", participant);
+                  }}
+                >
+                  {/* Avatar */}
+                  <div className="avatar avatar-offline flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
+                      <DefaultAvatar name={participant.name} />
+                    </div>
+                  </div>
+
+                  {/* Participant Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 w-full">
+                      <span className="font-medium truncate flex-1">
+                        {participant.name}
+                      </span>
+                      <span className="text-xs opacity-60 whitespace-nowrap flex-shrink-0">
+                        New
+                      </span>
+                    </div>
+                    <div className="text-sm opacity-70">
+                      Start a conversation
+                    </div>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </>
+        )}
       </ul>
     </div>
   );
