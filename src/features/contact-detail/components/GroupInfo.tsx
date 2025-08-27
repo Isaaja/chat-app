@@ -6,7 +6,7 @@ export default function GroupInfo({ contact }: GroupInfoProps) {
   return (
     <div className="text-center space-y-4">
       {/* Group Avatar */}
-      <div className="avatar  w-28 h-28">
+      <div className="avatar w-28 h-28">
         {contact.room.image_url ? (
           <Image
             src={contact.room.image_url}
