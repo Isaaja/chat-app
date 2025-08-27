@@ -312,7 +312,7 @@ export default function NewGroupModal({
               <button
                 className="btn btn-primary"
                 onClick={handleCreate}
-                disabled={submitting || !groupName}
+                disabled={submitting || !groupName || uploading}
               >
                 {submitting ? "Creating..." : "Create"}
               </button>
