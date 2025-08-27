@@ -25,6 +25,8 @@ export default function NewGroupModal({
 
   const [groupName, setGroupName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -56,6 +58,55 @@ export default function NewGroupModal({
 
   function removeChip(id: string) {
     setSelected((prev) => prev.filter((x) => x.id !== id));
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setError(undefined);
+    }
+  }
+
+  async function handleFileUpload() {
+    if (!selectedFile) return;
+
+    try {
+      setUploading(true);
+      setError(undefined);
+
+      // Create a temporary message ID for upload
+      const tempMessageId = Date.now().toString();
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("type", "IMAGE");
+      formData.append("messageId", tempMessageId);
+
+      const response = await fetch("/api/chat/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload file");
+      }
+
+      const result = await response.json();
+      setImageUrl(result.url);
+      setSelectedFile(null);
+
+      // Reset file input
+      const fileInput = document.getElementById(
+        "group-image-input"
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload file");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleCreate() {
@@ -92,6 +143,7 @@ export default function NewGroupModal({
       setSelected([]);
       setGroupName("");
       setImageUrl("");
+      setSelectedFile(null);
       setQuery("");
       setError(undefined);
     }, 0);
@@ -173,19 +225,79 @@ export default function NewGroupModal({
           <div className="p-4 flex flex-col gap-3">
             <h2 className="text-lg font-semibold">New group</h2>
             <p className="text-sm opacity-70">Add subject</p>
-
             <input
               className="input input-bordered"
               placeholder="Group subject"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
             />
-            <input
-              className="input input-bordered"
-              placeholder="Image URL (optional)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">
+                Group Image (Optional)
+              </label>
+
+              <div className="flex gap-2 items-start w-56">
+                <label className="input input-bordered flex-1 cursor-pointer">
+                  <svg
+                    className="h-[1em] opacity-50"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                  >
+                    <g
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      strokeWidth="2.5"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7,10 12,15 17,10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </g>
+                  </svg>
+                  <input
+                    id="group-image-input"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                  />
+                  <span className="grow text-sm opacity-70">
+                    {selectedFile ? selectedFile.name : "Choose image file..."}
+                  </span>
+                </label>
+
+                {selectedFile && (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={handleFileUpload}
+                    disabled={uploading}
+                  >
+                    {uploading ? "Uploading..." : "Upload"}
+                  </button>
+                )}
+              </div>
+
+              {imageUrl && (
+                <div className="flex items-center gap-2 p-2 bg-success/10 rounded-lg">
+                  <svg
+                    className="w-4 h-4 text-success"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm text-success">
+                    Image uploaded successfully!
+                  </span>
+                </div>
+              )}
+            </div>
 
             {error && <div className="text-error text-sm">{error}</div>}
 

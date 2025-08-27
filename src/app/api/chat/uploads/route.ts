@@ -50,12 +50,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const message = await prisma.comment.findUnique({
-      where: { id: Number(messageId) },
-    });
+    const isTemporaryId = messageId.length > 10;
 
-    if (!message) {
-      return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    if (!isTemporaryId) {
+      const message = await prisma.comment.findUnique({
+        where: { id: Number(messageId) },
+      });
+
+      if (!message) {
+        return NextResponse.json(
+          { error: "Message not found" },
+          { status: 404 }
+        );
+      }
     }
 
     const timestamp = Date.now();
@@ -80,49 +87,50 @@ export async function POST(req: NextRequest) {
       throw new Error("Failed to get file URL");
     }
 
-    // Get current comment to read existing uploads
-    const currentComment = await prisma.comment.findUnique({
-      where: { id: Number(messageId) },
-    });
+    if (!isTemporaryId) {
+      const currentComment = await prisma.comment.findUnique({
+        where: { id: Number(messageId) },
+      });
 
-    if (!currentComment) {
-      throw new Error("Comment not found for uploading file");
-    }
+      if (!currentComment) {
+        throw new Error("Comment not found for uploading file");
+      }
 
-    const currentUploads = currentComment.uploads || "[]";
-    let uploadsArray: string[] = [];
+      const currentUploads = currentComment.uploads || "[]";
+      let uploadsArray: string[] = [];
 
-    try {
-      uploadsArray =
-        typeof currentUploads === "string"
-          ? JSON.parse(currentUploads)
-          : currentUploads;
-      if (!Array.isArray(uploadsArray)) {
+      try {
+        uploadsArray =
+          typeof currentUploads === "string"
+            ? JSON.parse(currentUploads)
+            : currentUploads;
+        if (!Array.isArray(uploadsArray)) {
+          uploadsArray = [];
+        }
+      } catch (e) {
+        console.log(e);
         uploadsArray = [];
       }
-    } catch (e) {
-      console.log(e);
-      uploadsArray = [];
+
+      uploadsArray.push(urlData.publicUrl);
+
+      console.log(
+        `Updating comment ${messageId} with uploads array:`,
+        uploadsArray
+      );
+
+      await prisma.$executeRaw`
+        UPDATE "Comment" 
+        SET uploads = ${JSON.stringify(uploadsArray)}::jsonb
+        WHERE id = ${Number(messageId)}
+      `;
+
+      const updatedComment = await prisma.comment.findUnique({
+        where: { id: Number(messageId) },
+      });
+
+      console.log("Updated comment uploads:", updatedComment?.uploads);
     }
-
-    uploadsArray.push(urlData.publicUrl);
-
-    console.log(
-      `Updating comment ${messageId} with uploads array:`,
-      uploadsArray
-    );
-
-    await prisma.$executeRaw`
-      UPDATE "Comment" 
-      SET uploads = ${JSON.stringify(uploadsArray)}::jsonb
-      WHERE id = ${Number(messageId)}
-    `;
-
-    const updatedComment = await prisma.comment.findUnique({
-      where: { id: Number(messageId) },
-    });
-
-    console.log("Updated comment uploads:", updatedComment?.uploads);
 
     const fileInfo = {
       id: Number(messageId),

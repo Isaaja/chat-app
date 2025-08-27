@@ -130,8 +130,8 @@ export default function ChatSidebar({
                   onClick={() => onSelectChat(chatId)}
                 >
                   {/* Avatar */}
-                  <div className="avatar avatar-offline flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-content border border-base-300">
+                  <div className="avatar ">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral text-neutral-content flex items-center justify-center">
                       {chat.room.image_url ? (
                         <Image
                           src={chat.room.image_url}
