@@ -262,7 +262,7 @@ export default function NewGroupModal({
                     accept="image/*"
                     onChange={handleFileSelect}
                   />
-                  <span className="grow text-sm opacity-70">
+                  <span className="grow text-sm opacity-70 truncate">
                     {selectedFile ? selectedFile.name : "Choose image file..."}
                   </span>
                 </label>
