@@ -128,7 +128,7 @@ export default function Page() {
   }
 
   return (
-    <div className="w-full h-dvh flex bg-base overflow-hidden ">
+    <div className="w-full h-dvh flex bg-base-100 overflow-hidden ">
       {(isDesktop || showSidebarMobile) &&
         (loading ? (
           <ChatSidebarSkeleton />
@@ -153,8 +153,8 @@ export default function Page() {
               onBack={!isDesktop ? () => setShowSidebarMobile(true) : undefined}
             />
           ) : (
-            <div className="p-4 border-b border-base-300 bg-base-300">
-              <div className="flex items-center gap-3 ">
+            <div className="sm:h-18 p-4 border-b border-base-300 bg-base-200 ">
+              <div className="flex items-center gap-3">
                 {!isDesktop && (
                   <button
                     onClick={() => setShowSidebarMobile(true)}

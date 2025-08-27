@@ -83,7 +83,7 @@ export default function ChatSidebar({
   }, [chats, query, participants]);
 
   return (
-    <div className="bg-base-300 border-r border-black w-full flex flex-col h-screen">
+    <div className="bg-base-300 border-r border-base-300 w-full flex flex-col h-screen">
       {/* Header */}
       <div className="p-4 border-b border-base-300 flex items-center gap-2 justify-between flex-shrink-0">
         <span className="font-bold text-xl">Chats</span>
@@ -131,7 +131,7 @@ export default function ChatSidebar({
                 >
                   {/* Avatar */}
                   <div className="avatar avatar-offline flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-content border border-base-300">
                       {chat.room.image_url ? (
                         <Image
                           src={chat.room.image_url}
@@ -179,7 +179,7 @@ export default function ChatSidebar({
                     }}
                   >
                     <div className="avatar avatar-offline flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-black">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-content border border-base-300">
                         <DefaultAvatar name={participant.name} />
                       </div>
                     </div>

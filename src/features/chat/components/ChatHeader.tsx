@@ -30,7 +30,7 @@ export default function ChatHeader({ chat, onBack }: ChatHeaderProps) {
 
   return (
     <>
-      <div className="h-16 border-b border-base-300 flex items-center gap-3 px-4 bg-base-300">
+      <div className="h-18 border-b border-base-300 flex items-center gap-3 px-4 bg-base-200">
         {onBack ? (
           <button
             className="btn btn-ghost btn-sm lg:hidden"
