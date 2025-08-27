@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Chat App",
   description: "WhatsApp-like chat UI built with Next.js",
+  icons: {
+    icon: "/chat-bubble.svg",
+  },
 };
 
 export default function RootLayout({
