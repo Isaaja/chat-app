@@ -233,7 +233,7 @@ export default function NewGroupModal({
             />
             <div className="space-y-3">
               <label className="block text-sm font-medium">
-                Group Image (Optional)
+                Group Logo (Optional)
               </label>
 
               <div className="flex gap-2 items-start w-56">
